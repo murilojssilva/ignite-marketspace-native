@@ -2,13 +2,21 @@ import {
   IInputProps,
   Input as NativeBaseInput,
   FormControl,
+  Icon,
 } from "native-base";
+import { Feather } from "@expo/vector-icons";
 
 type InputProps = IInputProps & {
   errorMessage?: string | null;
+  icon?: string;
 };
 
-export function Input({ errorMessage = null, isInvalid, ...rest }: InputProps) {
+export function Input({
+  icon,
+  errorMessage = null,
+  isInvalid,
+  ...rest
+}: InputProps) {
   const invalid = !!errorMessage || isInvalid;
   return (
     <FormControl isInvalid={invalid} mb={4}>
@@ -31,6 +39,13 @@ export function Input({ errorMessage = null, isInvalid, ...rest }: InputProps) {
           borderWidth: 1,
           borderColor: "green.500",
         }}
+        rightElement={
+          icon ? (
+            <Icon as={Feather} name={icon} color="gray.4" size={22} p={5} />
+          ) : (
+            <></>
+          )
+        }
         {...rest}
       />
       <FormControl.ErrorMessage _text={{ color: "red.500" }}>

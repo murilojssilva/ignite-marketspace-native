@@ -5,6 +5,7 @@ export const THEME = extendTheme({
     blue: {
       normal: "#364D9D",
       light: "#647AC7",
+      1: "#647ac71a",
     },
     green: {
       700: "#00875F",
