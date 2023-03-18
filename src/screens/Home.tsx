@@ -20,6 +20,7 @@ import { Switch } from "@components/Switch";
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
+import { SearchBar } from "@components/SearchBar";
 
 export function Home() {
   const { isOpen, onOpen, onClose } = useDisclose();
@@ -30,7 +31,7 @@ export function Home() {
   }
 
   return (
-    <VStack p={8} mt={6} justifyContent="space-between">
+    <VStack bg="gray.6" p={8} mt={6} justifyContent="space-between">
       <HomeHeader />
       <Text fontSize="sm" fontFamily="regular" color="gray.1">
         Seus produtos anunciados para venda
@@ -40,9 +41,9 @@ export function Home() {
         <Text fontSize="sm" fontFamily="regular" color="gray.1">
           Compre produtos variados
         </Text>
-        <Input mt={1} placeholder="Buscar anúncio" icon="search" />
+        <SearchBar handleFilterPress={onOpen} />
       </VStack>
-      <ScrollView p={2}>
+      <ScrollView>
         <HStack justifyContent="space-between">
           <ItemCard onPress={handleOpenCard} />
           <ItemCard onPress={handleOpenCard} />
@@ -75,8 +76,8 @@ export function Home() {
               Condição
             </Heading>
             <HStack py={3}>
-              <Badge mr={2} text="novo" />
-              <Badge text="usado" />
+              <Badge w={20} mr={2} text="novo" />
+              <Badge w={20} text="usado" />
             </HStack>
           </VStack>
           <VStack>
@@ -95,9 +96,9 @@ export function Home() {
             <Checkbox value="test" text="Cartão de Crédito" />
             <Checkbox value="test" text="Depósito Bancário" />
           </VStack>
-          <HStack justifyContent="space-around" mx={8}>
-            <Button w={180} mr={2} variant="subtle" title="Resetar filtros" />
-            <Button variant="outline" w={180} title="Aplicar filtros" />
+          <HStack justifyContent="space-between" mx={8}>
+            <Button w={150} mr={2} variant="subtle" title="Resetar filtros" />
+            <Button variant="outline" w={150} title="Aplicar filtros" />
           </HStack>
         </Actionsheet.Content>
       </Actionsheet>

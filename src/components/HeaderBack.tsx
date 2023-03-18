@@ -22,7 +22,13 @@ export function HeaderBack({ title, icon, onPress }: HeaderBackProps) {
         <Icon as={Feather} name="arrow-left" size={6} color="gray.1" />
       </TouchableOpacity>
       {title && (
-        <Heading fontFamily="bold" fontSize="xl" color="gray.1">
+        <Heading
+          alignItems="center"
+          justifyContent="center"
+          fontFamily="bold"
+          fontSize="xl"
+          color="gray.1"
+        >
           {title}
         </Heading>
       )}

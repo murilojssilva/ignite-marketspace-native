@@ -1,54 +1,75 @@
+import { useState } from "react";
+import { TouchableOpacity } from "react-native";
 import {
-  IInputProps,
   Input as NativeBaseInput,
+  IInputProps,
+  Box,
+  useTheme,
   FormControl,
-  Icon,
 } from "native-base";
-import { Feather } from "@expo/vector-icons";
+import { Eye } from "phosphor-react-native";
 
 type InputProps = IInputProps & {
-  errorMessage?: string | null;
-  icon?: string;
+  errorMessage?: string;
 };
 
-export function Input({
-  icon,
-  errorMessage = null,
-  isInvalid,
-  ...rest
-}: InputProps) {
+export function Input({ type, errorMessage, isInvalid, ...rest }: InputProps) {
+  const [showPassword, setShowPassword] = useState(false);
+
   const invalid = !!errorMessage || isInvalid;
+
+  function handlePasswordView() {
+    setShowPassword(!showPassword);
+    console.log(showPassword);
+  }
+
   return (
-    <FormControl isInvalid={invalid} mb={4}>
-      <NativeBaseInput
-        bg="gray.7"
-        h={14}
-        px={4}
-        borderWidth={0}
-        fontSize="md"
-        color="white"
-        fontFamily="body"
-        placeholderTextColor="gray.4"
-        isInvalid={invalid}
-        _invalid={{
-          borderWidth: 1,
-          borderColor: "red.500",
-        }}
-        _focus={{
-          bg: "gray.5",
-          borderWidth: 1,
-          borderColor: "green.500",
-        }}
-        rightElement={
-          icon ? (
-            <Icon as={Feather} name={icon} color="gray.4" size={22} p={5} />
-          ) : (
-            <></>
-          )
-        }
-        {...rest}
-      />
-      <FormControl.ErrorMessage _text={{ color: "red.500" }}>
+    <FormControl isInvalid={invalid}>
+      <Box
+        w="full"
+        alignItems="center"
+        justifyContent="center"
+        position="relative"
+      >
+        <NativeBaseInput
+          bg="gray.7"
+          borderWidth="0"
+          px="4"
+          h="12"
+          fontFamily="marketspace_body"
+          fontSize="md"
+          placeholderTextColor="gray.4"
+          color="gray.1"
+          isInvalid={invalid}
+          _invalid={{
+            borderColor: "red_light",
+            borderWidth: 1,
+          }}
+          _focus={{
+            bg: "gray.7",
+            borderWidth: 1,
+            borderColor: "gray.1",
+          }}
+          type={type === "password" && !showPassword ? "password" : "text"}
+          {...rest}
+        />
+        {type === "password" ? (
+          <TouchableOpacity
+            onPress={handlePasswordView}
+            style={{
+              position: "absolute",
+              right: 16,
+              alignSelf: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Eye color="gray.3" size="20" />
+          </TouchableOpacity>
+        ) : (
+          <></>
+        )}
+      </Box>
+      <FormControl.ErrorMessage paddingLeft={4} mt={1} color="red_light">
         {errorMessage}
       </FormControl.ErrorMessage>
     </FormControl>

@@ -1,48 +1,48 @@
 import {
-  HStack,
   Heading,
   Image,
   Text,
   VStack,
-  Card,
-  Pressable,
   IPressableProps,
+  Box,
 } from "native-base";
 import { UserPhoto } from "./UserPhoto";
 import { Badge } from "./Badge";
 
 import BicicleImage from "@assets/Bicycle.png";
+import { useNavigation } from "@react-navigation/native";
+import { AppNavigatorRoutesProps } from "@routes/app.routes";
+import { Pressable } from "react-native";
 
 type ItemCardProps = IPressableProps;
 
 export function ItemCard({ ...rest }: ItemCardProps) {
   return (
-    <Pressable flex={1} bg="gray.7" p={4} mx={1} borderRadius="xl" {...rest}>
-      <Card>
-        <Image
-          source={BicicleImage}
-          w="full"
-          alt="Pessoas treinando"
-          resizeMode="cover"
-        />
-        <HStack h={20}>
+    <Pressable {...rest}>
+      <VStack bg="gray.6" my={2} mx={1} rounded="xl">
+        <Box p={1} h={24} w={33} borderRadius="xl" rounded="xl">
+          <Box flex={1} position="absolute" w="full" h="full" rounded="lg">
+            <Image
+              source={BicicleImage}
+              alt="Imagem do produto"
+              flex={1}
+              w="full"
+              resizeMode="cover"
+            />
+          </Box>
+
           <UserPhoto
             source={{ uri: "https://github.com/murilojssilva.png" }}
             alt="Imagem do usuário"
             size={10}
-            mr={4}
           />
-          <Badge text="usado" />
-        </HStack>
-        <VStack>
-          <Text fontFamily="regular" color="gray.2">
-            Tênis vermelho
-          </Text>
-          <Heading color="gray.1" fontFamily="bold">
-            R$ 59,90
-          </Heading>
+          <Badge position="absolute" top={2} right={2} text="novo" />
+        </Box>
+        <VStack p={2}>
+          <Text color="gray.2">Tênis</Text>
+          <Heading color="gray.1">R$ 59,90</Heading>
         </VStack>
-      </Card>
+      </VStack>
     </Pressable>
   );
 }

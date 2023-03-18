@@ -2,7 +2,14 @@ import { ItemCard } from "@components/ItemCard";
 import { MyAdsHeader } from "@components/MyAdsHeader";
 import { useNavigation } from "@react-navigation/native";
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
-import { CheckIcon, HStack, Select, Text, VStack } from "native-base";
+import {
+  CheckIcon,
+  HStack,
+  ScrollView,
+  Select,
+  Text,
+  VStack,
+} from "native-base";
 
 export function MyAds() {
   const { navigate } = useNavigation<AppNavigatorRoutesProps>();
@@ -10,7 +17,7 @@ export function MyAds() {
     navigate("myAdDetails");
   }
   return (
-    <VStack>
+    <VStack bg="gray.6">
       <MyAdsHeader />
       <HStack alignItems="center" p={2} justifyContent="space-around">
         <Text>9 anúncios</Text>
@@ -33,7 +40,7 @@ export function MyAds() {
           <Select.Item label="Todos" value="all" />
         </Select>
       </HStack>
-      <VStack p={2}>
+      <ScrollView px={8} py={2} mt={6}>
         <HStack justifyContent="space-between">
           <ItemCard onPress={handleOpenCard} />
           <ItemCard onPress={handleOpenCard} />
@@ -42,7 +49,7 @@ export function MyAds() {
           <ItemCard onPress={handleOpenCard} />
           <ItemCard onPress={handleOpenCard} />
         </HStack>
-      </VStack>
+      </ScrollView>
     </VStack>
   );
 }

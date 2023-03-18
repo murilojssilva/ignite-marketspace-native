@@ -7,14 +7,15 @@ import {
 
 type CheckboxProps = ICheckboxProps & {
   text: string;
+  value: string;
 };
 
-export function Checkbox({ text, ...rest }: CheckboxProps) {
+export function Checkbox({ text, value, ...rest }: CheckboxProps) {
   return (
     <HStack alignItems="center" p={1}>
       <NativeBaseCheckbox
+        value={value}
         mr={2}
-        size={12}
         accessibilityLabel={text}
         _checked={{
           bg: "blue.light",

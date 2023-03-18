@@ -6,15 +6,8 @@ type BagdeProps = IBoxProps & {
 
 export function Badge({ text, ...rest }: BagdeProps) {
   return (
-    <Box
-      bg="gray.2"
-      h={8}
-      px={2}
-      borderRadius="full"
-      alignItems="center"
-      justifyContent="center"
-    >
-      <Text textAlign="center" color="gray.7" fontFamily="bold">
+    <Box alignItems="center" bg={"blue.normal"} rounded="full" {...rest}>
+      <Text color="white" fontFamily="heading" px={3} py={1}>
         {text.toUpperCase()}
       </Text>
     </Box>
