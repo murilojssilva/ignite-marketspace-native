@@ -23,7 +23,7 @@ export function ItemCard({ ...rest }: ItemCardProps) {
           source={BicicleImage}
           w="full"
           alt="Pessoas treinando"
-          resizeMode="contain"
+          resizeMode="cover"
         />
         <HStack h={20}>
           <UserPhoto

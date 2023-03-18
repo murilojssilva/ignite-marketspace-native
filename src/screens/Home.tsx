@@ -8,6 +8,7 @@ import {
   HStack,
   Heading,
   Icon,
+  ScrollView,
   Text,
   VStack,
   useDisclose,
@@ -41,7 +42,7 @@ export function Home() {
         </Text>
         <Input mt={1} placeholder="Buscar anúncio" icon="search" />
       </VStack>
-      <VStack p={2}>
+      <ScrollView p={2}>
         <HStack justifyContent="space-between">
           <ItemCard onPress={handleOpenCard} />
           <ItemCard onPress={handleOpenCard} />
@@ -50,7 +51,7 @@ export function Home() {
           <ItemCard onPress={handleOpenCard} />
           <ItemCard onPress={handleOpenCard} />
         </HStack>
-      </VStack>
+      </ScrollView>
 
       <Actionsheet isOpen={isOpen} onClose={onClose}>
         <Actionsheet.Content
@@ -94,7 +95,7 @@ export function Home() {
             <Checkbox value="test" text="Cartão de Crédito" />
             <Checkbox value="test" text="Depósito Bancário" />
           </VStack>
-          <HStack justifyContent="space-between">
+          <HStack justifyContent="space-around" mx={8}>
             <Button w={180} mr={2} variant="subtle" title="Resetar filtros" />
             <Button variant="outline" w={180} title="Aplicar filtros" />
           </HStack>

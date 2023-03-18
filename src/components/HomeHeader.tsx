@@ -2,8 +2,14 @@ import { Heading, Text, HStack, VStack, Icon } from "native-base";
 
 import { UserPhoto } from "./UserPhoto";
 import { Button } from "./Form/Button";
+import { useNavigation } from "@react-navigation/native";
+import { AppNavigatorRoutesProps } from "@routes/app.routes";
 
 export function HomeHeader() {
+  const { navigate } = useNavigation<AppNavigatorRoutesProps>();
+  function handleCreateAd() {
+    navigate("createAd");
+  }
   return (
     <HStack pt={8} pb={5} alignItems="center">
       <UserPhoto
@@ -26,6 +32,7 @@ export function HomeHeader() {
         icon="plus"
         w={139}
         h={42}
+        onPress={handleCreateAd}
       />
     </HStack>
   );

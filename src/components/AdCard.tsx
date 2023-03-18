@@ -1,9 +1,15 @@
 import { HStack, Heading, Icon, Text, VStack } from "native-base";
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { ItemCard } from "./ItemCard";
+import { TouchableOpacity } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { AppNavigatorRoutesProps } from "@routes/app.routes";
 
 export function AdCard() {
+  const { navigate } = useNavigation<AppNavigatorRoutesProps>();
+  function handleMyAds() {
+    navigate("myAds");
+  }
   return (
     <HStack
       py={8}
@@ -31,17 +37,19 @@ export function AdCard() {
           </Text>
         </VStack>
       </HStack>
-      <HStack alignItems="center">
-        <Heading fontFamily="bold" fontSize="xs" color="blue.normal">
-          Meus anúncios
-        </Heading>
-        <Icon
-          as={MaterialCommunityIcons}
-          name="arrow-right"
-          color="blue.normal"
-          size={8}
-        />
-      </HStack>
+      <TouchableOpacity onPress={handleMyAds}>
+        <HStack alignItems="center">
+          <Heading fontFamily="bold" fontSize="xs" color="blue.normal">
+            Meus anúncios
+          </Heading>
+          <Icon
+            as={MaterialCommunityIcons}
+            name="arrow-right"
+            color="blue.normal"
+            size={8}
+          />
+        </HStack>
+      </TouchableOpacity>
     </HStack>
   );
 }
