@@ -1,12 +1,14 @@
+import { useState } from "react";
+
 import {
   Heading,
   VStack,
   Text,
-  Box,
   Icon,
   HStack,
   ScrollView,
   Image,
+  useToast,
 } from "native-base";
 
 import { FontAwesome } from "@expo/vector-icons";
@@ -14,16 +16,112 @@ import { UserPhoto } from "@components/UserPhoto";
 import { Badge } from "@components/Badge";
 import { Button } from "@components/Form/Button";
 
-import BicicleImage from "@assets/Bicycle.png";
-import { useNavigation } from "@react-navigation/native";
+import avatarImg from "@assets/userPhotoDefault.png";
+
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
+import { PreviewAdDTO } from "@dtos/PreviewAdDTO";
+import { useAuth } from "@hooks/useAuth";
+import { api } from "@services/api";
+import { AppError } from "@utils/AppError";
 
 export function PreviewAd() {
+  const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation<AppNavigatorRoutesProps>();
 
   function handleGoBack() {
     navigation.goBack();
   }
+
+  const route = useRoute();
+
+  const {
+    price,
+    name,
+    description,
+    is_new,
+    accept_trade,
+    imagesUri,
+    payment_methods,
+  } = route.params as PreviewAdDTO;
+
+  const { user } = useAuth();
+  const toast = useToast();
+
+  async function handleCreateAd() {
+    try {
+      setIsLoading(true);
+
+      const response = await api.post("/products", {
+        name,
+        description,
+        price,
+        is_new,
+        accept_trade,
+        payment_methods,
+        imagesUri,
+      });
+
+      const { id } = response.data;
+
+      await uploadImages(id, imagesUri);
+      toast.show({
+        title: "Produto cadastrado com sucesso.",
+        placement: "top",
+        bgColor: "green.500",
+      });
+
+      navigation.navigate("home");
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível cadastrar o produto. Tente novamente mais tarde.";
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.500",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function uploadImages(productId: string, images: string[]) {
+    try {
+      const imageData = new FormData();
+      imageData.append("product_id", productId);
+
+      images.forEach((item) => {
+        const imageExtension = item.split(".").pop();
+
+        const imageFile = {
+          name: `${user.name}.${imageExtension}`,
+          uri: item,
+          type: `image/${imageExtension}`,
+        } as any;
+
+        imageData.append("images", imageFile);
+      });
+
+      await api.post("/products/images/", imageData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível carregar a imagem. Tente novamente.";
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.500",
+      });
+    }
+  }
+
   return (
     <VStack flex={1}>
       <VStack alignItems="center" bg="blue.light" pt={12} p={8}>
@@ -35,21 +133,30 @@ export function PreviewAd() {
         </Text>
       </VStack>
       <ScrollView>
-        <Image
-          source={BicicleImage}
-          w="full"
-          alt="Bicicleta"
-          resizeMode="cover"
-        />
+        {imagesUri.map((image) => {
+          <ScrollView horizontal>
+            <Image
+              source={{ uri: image }}
+              w="full"
+              alt="Bicicleta"
+              resizeMode="cover"
+            />
+          </ScrollView>;
+        })}
+
         <HStack p={6} h={20} alignItems="center">
           <UserPhoto
-            source={{ uri: "https://github.com/murilojssilva.png" }}
+            source={
+              user.avatar
+                ? { uri: `${api.defaults.baseURL}/images/${user.avatar}` }
+                : avatarImg
+            }
             alt="Imagem do usuário"
             size={10}
             mr={4}
           />
           <Text fontSize="sm" fontFamily="regular" color="gray.1">
-            Muriilo
+            {user.name}
           </Text>
         </HStack>
         <VStack px={6}>
@@ -58,17 +165,14 @@ export function PreviewAd() {
             variant="outFilter"
             mb={2}
             w={20}
-            state="NOVO"
+            state={is_new ? "NOVO" : "USADO"}
           />
           <VStack mb={2}>
             <Heading fontFamily="bold" fontSize="xl" color="gray.1">
-              Bicicleta
+              {name}
             </Heading>
             <Text fontFamily="regular" fontSize="md" color="gray.1">
-              Cras congue cursus in tortor sagittis placerat nunc, tellus arcu.
-              Vitae ante leo eget maecenas urna mattis cursus. Mauris metus amet
-              nibh mauris mauris accumsan, euismod. Aenean leo nunc, purus
-              iaculis in aliquam.
+              {description}
             </Text>
           </VStack>
 
@@ -77,43 +181,63 @@ export function PreviewAd() {
               Aceita troca?
             </Heading>
             <Text fontFamily="regular" fontSize="md" color="gray.1">
-              Sim
+              {accept_trade ? "Sim" : "Não"}
             </Text>
           </HStack>
           <VStack>
             <Heading mb={2} fontFamily="bold" fontSize="md" color="gray.1">
               Meios de pagamento
             </Heading>
-            <HStack alignItems="center">
-              <Icon mr={2} as={FontAwesome} name="money" />
-              <Text fontFamily="regular" fontSize="md" color="gray.1">
-                Boleto
-              </Text>
-            </HStack>
-            <HStack alignItems="center">
-              <Icon mr={2} as={FontAwesome} name="qrcode" />
-              <Text fontFamily="regular" fontSize="md" color="gray.1">
-                Pix
-              </Text>
-            </HStack>
-            <HStack alignItems="center">
-              <Icon mr={2} as={FontAwesome} name="money" />
-              <Text fontFamily="regular" fontSize="md" color="gray.1">
-                Dinheiro
-              </Text>
-            </HStack>
-            <HStack alignItems="center">
-              <Icon mr={2} as={FontAwesome} name="credit-card" />
-              <Text fontFamily="regular" fontSize="md" color="gray.1">
-                Cartão de Crédito
-              </Text>
-            </HStack>
-            <HStack alignItems="center">
-              <Icon mr={2} as={FontAwesome} name="bank" />
-              <Text fontFamily="regular" fontSize="md" color="gray.1">
-                Depósito Bancário
-              </Text>
-            </HStack>
+            {payment_methods.find(
+              (payment_method) => payment_method.key === "boleto"
+            ) && (
+              <HStack alignItems="center">
+                <Icon mr={2} as={FontAwesome} name="money" />
+                <Text fontFamily="regular" fontSize="md" color="gray.1">
+                  Boleto
+                </Text>
+              </HStack>
+            )}
+            {payment_methods.find(
+              (payment_method) => payment_method.key === "pix"
+            ) && (
+              <HStack alignItems="center">
+                <Icon mr={2} as={FontAwesome} name="qrcode" />
+                <Text fontFamily="regular" fontSize="md" color="gray.1">
+                  Pix
+                </Text>
+              </HStack>
+            )}
+            {payment_methods.find(
+              (payment_method) => payment_method.key === "cash"
+            ) && (
+              <HStack alignItems="center">
+                <Icon mr={2} as={FontAwesome} name="money" />
+                <Text fontFamily="regular" fontSize="md" color="gray.1">
+                  Dinheiro
+                </Text>
+              </HStack>
+            )}
+            {payment_methods.find(
+              (payment_method) => payment_method.key === "credit_card"
+            ) && (
+              <HStack alignItems="center">
+                <Icon mr={2} as={FontAwesome} name="credit-card" />
+                <Text fontFamily="regular" fontSize="md" color="gray.1">
+                  Cartão de Crédito
+                </Text>
+              </HStack>
+            )}
+            {payment_methods.find(
+              (payment_method) => payment_method.key === "deposit"
+            ) && (
+              <HStack alignItems="center">
+                <Icon mr={2} as={FontAwesome} name="bank" />
+                <Text fontFamily="regular" fontSize="md" color="gray.1">
+                  Depósito Bancário
+                </Text>
+              </HStack>
+            )}
           </VStack>
         </VStack>
       </ScrollView>
@@ -131,7 +255,14 @@ export function PreviewAd() {
           icon="arrow-left"
           onPress={handleGoBack}
         />
-        <Button w={160} title="Avançar" variant="solid" icon="tag" />
+        <Button
+          w={160}
+          title="Avançar"
+          variant="solid"
+          isLoading={isLoading}
+          icon="tag"
+          onPress={handleCreateAd}
+        />
       </HStack>
     </VStack>
   );

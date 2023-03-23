@@ -32,7 +32,6 @@ import { PAYMENT_METHODS } from "@constants/paymentMethods";
 import { AppError } from "@utils/AppError";
 import { api } from "@services/api";
 import { ProductDTO } from "@dtos/ProductDTO";
-import { paymentMethods } from "@utils/index";
 
 export function Home() {
   const { isOpen, onOpen, onClose } = useDisclose();
@@ -44,8 +43,8 @@ export function Home() {
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [products, setProducts] = useState<ProductDTO[]>([] as ProductDTO[]);
 
-  function handleOpenCard() {
-    navigate("details");
+  function handleOpenCard(productId: string) {
+    navigate("details", { productId });
   }
 
   async function fetchProducts() {
@@ -97,7 +96,7 @@ export function Home() {
           renderItem={({ item }) => (
             <ItemCard
               product={item}
-              onPress={() => handleOpenCard()}
+              onPress={() => handleOpenCard(item.id)}
               key={item.id}
             />
           )}
@@ -189,12 +188,7 @@ export function Home() {
             <Heading mb={2} color="gray.1" fontSize="sm" fontFamily="bold">
               Aceita troca?
             </Heading>
-            <Switch
-              size="md"
-              onChange={() =>
-                setProducts(products.filter((product) => product.accept_trade))
-              }
-            />
+            <Switch size="md" />
           </VStack>
           <Heading pt={3} color="gray.1" fontSize="sm" fontFamily="bold">
             Meios de pagamento aceitos

@@ -1,7 +1,7 @@
 import { EmptyProductList } from "@components/EmptyProductList";
-import { ItemCard } from "@components/ItemCard";
 import { Loading } from "@components/Loading";
 import { MyAdsHeader } from "@components/MyAdsHeader";
+import { UserItemCard } from "@components/UserItemCard";
 import { ProductDTO } from "@dtos/ProductDTO";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
@@ -29,7 +29,7 @@ export function MyAds() {
   async function fetchProducts() {
     try {
       setIsLoadingProducts(true);
-      const response = await api.get("/products");
+      const response = await api.get("users/products");
       setProducts(response.data);
     } catch (error) {
       const isAppError = error instanceof AppError;
@@ -52,9 +52,10 @@ export function MyAds() {
     }, [products])
   );
 
-  function handleOpenCard() {
-    navigate("myAdDetails");
+  function handleOpenCard(productId: string) {
+    navigate("myAdDetails", { productId });
   }
+
   return (
     <VStack bg="gray.6">
       <MyAdsHeader />
@@ -101,9 +102,9 @@ export function MyAds() {
           data={products}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <ItemCard
+            <UserItemCard
               product={item}
-              onPress={() => handleOpenCard()}
+              onPress={() => handleOpenCard(item.id)}
               key={item.id}
             />
           )}

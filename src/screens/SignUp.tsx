@@ -27,6 +27,7 @@ import { useState } from "react";
 import { useAuth } from "@hooks/useAuth";
 import { AppError } from "@utils/AppError";
 import { UserPhoto } from "@components/UserPhoto";
+import { UserPhotoDTO } from "@dtos/UserPhotoDTO";
 
 type FormDataProps = {
   name: string;
@@ -34,14 +35,6 @@ type FormDataProps = {
   tel: string;
   password: string;
   password_confirm: string;
-};
-
-type UserPhotoProps = {
-  photo: {
-    uri: string;
-    name: string;
-    type: string;
-  };
 };
 
 const signUpSchema = Yup.object({
@@ -59,7 +52,7 @@ const signUpSchema = Yup.object({
 export function SignUp() {
   const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [userPhoto, setUserPhoto] = useState({} as UserPhotoProps);
+  const [userPhoto, setUserPhoto] = useState({} as UserPhotoDTO);
   const {
     control,
     handleSubmit,

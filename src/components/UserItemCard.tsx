@@ -18,12 +18,16 @@ import { api } from "@services/api";
 import avatarImg from "@assets/userPhotoDefault.png";
 import { useAuth } from "@hooks/useAuth";
 
-type ItemCardProps = IPressableProps & {
+type UserItemCardProps = IPressableProps & {
   product: ProductDTO;
   isActive?: boolean;
 };
 
-export function ItemCard({ product, isActive, ...rest }: ItemCardProps) {
+export function UserItemCard({
+  product,
+  isActive,
+  ...rest
+}: UserItemCardProps) {
   const { user } = useAuth();
   return (
     <Pressable {...rest}>
@@ -54,16 +58,15 @@ export function ItemCard({ product, isActive, ...rest }: ItemCardProps) {
 
           <UserPhoto
             source={
-              product.user.avatar
+              user.avatar
                 ? {
-                    uri: `${api.defaults.baseURL}/images/${product.user.avatar}`,
+                    uri: `${api.defaults.baseURL}/images/${user.avatar}`,
                   }
                 : avatarImg
             }
             alt="Imagem do usuário"
             size={10}
           />
-
           <Badge
             colorText={product.is_new ? "white" : "gray.1"}
             variant="outFilter"

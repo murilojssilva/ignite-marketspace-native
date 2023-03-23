@@ -8,6 +8,9 @@ import {
   HStack,
   Radio,
   ScrollView,
+  useToast,
+  Checkbox as NativeBaseCheckbox,
+  FlatList,
 } from "native-base";
 import { Feather } from "@expo/vector-icons";
 import { Input } from "@components/Form/Input";
@@ -19,12 +22,106 @@ import { Textarea } from "@components/Form/Textarea";
 import { useNavigation } from "@react-navigation/native";
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
 
+import * as ImagePicker from "expo-image-picker";
+
+import * as Yup from "yup";
+import { Controller, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { PAYMENT_METHODS } from "@constants/paymentMethods";
+import { Pressable } from "react-native";
+import { ImageFormPreview } from "@components/ImageFormPreview";
+import { PaymentMethodDTO } from "@dtos/PaymentMethodDTO";
+import { AppError } from "@utils/AppError";
+
+type FormDataProps = {
+  name: string;
+  description: string;
+  price: number;
+};
+
+const createAdSchema = Yup.object({
+  name: Yup.string().required("Informe o nome."),
+  description: Yup.string().required("Informe a descrição."),
+  price: Yup.number()
+    .typeError("Informe um valor numérico")
+    .positive("O valor não pode ser negativo")
+    .required("O valor é obrigatório"),
+});
+
 export function CreateAd() {
-  const [value, setValue] = useState("new");
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormDataProps>({ resolver: yupResolver(createAdSchema) });
+
+  const [is_new, setIsNew] = useState(false);
+  const [accept_trade, setAcceptTrade] = useState(false);
+  const [payment_methods, setPayMethods] = useState<PaymentMethodDTO[]>(
+    [] as PaymentMethodDTO[]
+  );
+  const [imagesUri, setImagesUri] = useState<string[]>([]);
+  const toast = useToast();
+
   const navigation = useNavigation<AppNavigatorRoutesProps>();
 
-  function handleShowPreview() {
-    navigation.navigate("previewAd");
+  async function handleSelectImage() {
+    try {
+      const imageSelected = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+        aspect: [4, 4],
+        allowsEditing: true,
+      });
+
+      if (imageSelected.canceled) {
+        return;
+      }
+
+      if (imageSelected.assets[0].uri) {
+        setImagesUri([...imagesUri, imageSelected.assets[0].uri]);
+      }
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível selecionar a foto. Tente novamente.";
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.500",
+      });
+    }
+  }
+
+  function removeImage(uri: string) {
+    const imagesFiltered = imagesUri.filter((imageUri) => imageUri !== uri);
+    setImagesUri(imagesFiltered);
+  }
+
+  function handleShowPreview({ name, description, price }: FormDataProps) {
+    try {
+      console.log(imagesUri);
+      navigation.navigate("previewAd", {
+        name,
+        description,
+        price: Number(price),
+        imagesUri,
+        is_new,
+        accept_trade,
+        payment_methods,
+      });
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível mostrar os detalhes do produto cadastrado. Tente novamente.";
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.500",
+      });
+    }
   }
   function handleGoBack() {
     navigation.goBack();
@@ -41,63 +138,141 @@ export function CreateAd() {
             Escolha até 3 imagens para mostrar o quando o seu produto é
             incrível!
           </Text>
-          <Box
+
+          <ScrollView
+            w="full"
+            flex={1}
             mt={2}
-            bg="gray.5"
-            h={100}
-            w={100}
-            alignItems="center"
-            justifyContent="center"
-            borderRadius="sm"
+            h={150}
+            horizontal
+            showsHorizontalScrollIndicator={false}
           >
-            <Icon as={Feather} name="plus" color="gray.4" size={6} />
-          </Box>
+            <HStack mt={2} alignItems="center">
+              {imagesUri.length > 0 &&
+                imagesUri.map((imageUri) => (
+                  <Box key={imageUri}>
+                    <ImageFormPreview uri={imageUri} />
+
+                    <Pressable onPress={() => removeImage(imageUri)}>
+                      <Icon as={Feather} name="x" size={2} color="white" />
+                    </Pressable>
+                  </Box>
+                ))}
+              <Box
+                mt={2}
+                bg="gray.5"
+                h={100}
+                w={100}
+                alignItems="center"
+                justifyContent="center"
+                borderRadius="sm"
+              >
+                <Icon as={Feather} name="plus" onPress={handleSelectImage} />
+              </Box>
+            </HStack>
+          </ScrollView>
         </VStack>
         <VStack my={4}>
           <Heading my={4} fontFamily="bold" fontSize="sm" color="gray.2">
             Sobre o produto
           </Heading>
-          <Input placeholder="Título do anúncio" />
-          <Textarea placeholder="Descrição do produto" numberOfLines={5} />
+          <Controller
+            control={control}
+            name="name"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                mb={2}
+                onChangeText={onChange}
+                value={value}
+                placeholder="Nome"
+                errorMessage={errors.name?.message}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="description"
+            render={({ field: { onChange, value } }) => (
+              <Textarea
+                mb={2}
+                onChangeText={onChange}
+                value={value}
+                placeholder="Descrição do produto"
+                errorMessage={errors.description?.message}
+                numberOfLines={5}
+              />
+            )}
+          />
         </VStack>
-        <HStack>
-          <Radio.Group
-            name="myRadioGroup"
-            accessibilityLabel="product type"
-            value={value}
-            onChange={(nextValue) => {
-              setValue(nextValue);
-            }}
-          >
+        <Radio.Group
+          name="radio"
+          accessibilityLabel="tipo de produto"
+          value={is_new ? "new" : "used"}
+          onChange={(nextValue) => {
+            setIsNew(
+              nextValue === "new" ? true : nextValue === "old" ? false : false
+            );
+          }}
+        >
+          <HStack alignItems="center" justifyContent="space-between">
             <Radio value="new" my={1}>
-              Produto novo
+              <Text fontSize="md" color="gray.2">
+                Produto novo
+              </Text>
             </Radio>
-            <Radio value="old" my={1}>
-              Produto usado
+            <Radio value="old" ml={2} my={1}>
+              <Text fontSize="md" color="gray.2">
+                Produto usado
+              </Text>
             </Radio>
-          </Radio.Group>
-        </HStack>
+          </HStack>
+        </Radio.Group>
         <VStack my={4}>
           <Heading my={4} fontFamily="bold" fontSize="sm" color="gray.2">
             Venda
           </Heading>
-          <Input placeholder="Valor do produto" />
+          <Controller
+            control={control}
+            name="price"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                mb={2}
+                onChangeText={onChange}
+                keyboardType="numeric"
+                value={String(value)}
+                placeholder="Valor do produto"
+                errorMessage={errors.price?.message}
+              />
+            )}
+          />
         </VStack>
         <VStack my={4}>
           <Heading my={4} fontFamily="bold" fontSize="sm" color="gray.2">
             Aceita troca?
           </Heading>
-          <Switch />
+          <Switch
+            size="md"
+            onToggle={(value) => setAcceptTrade(value)}
+            value={accept_trade}
+          />
         </VStack>
         <VStack my={4}>
           <Heading my={4} fontFamily="bold" fontSize="sm" color="gray.2">
             Meios de pagamento aceitos
           </Heading>
-          <Checkbox value="test" text="Boleto" />
-          <Checkbox value="test" text="Pix" />
-          <Checkbox value="test" text="Dinheiro" />
-          <Checkbox value="test" text="Cartão de Crédito" />
-          <Checkbox value="test" text="Depósito Bancário" />
+          <NativeBaseCheckbox.Group
+            onChange={setPayMethods}
+            value={payment_methods as any[]}
+          >
+            <FlatList
+              data={PAYMENT_METHODS}
+              py={2}
+              keyExtractor={(item) => item.key}
+              renderItem={({ item }) => (
+                <Checkbox item={item} value={item.key} text={item.name} />
+              )}
+            />
+          </NativeBaseCheckbox.Group>
         </VStack>
       </ScrollView>
       <HStack
@@ -117,7 +292,7 @@ export function CreateAd() {
           w={160}
           title="Avançar"
           variant="outline"
-          onPress={handleShowPreview}
+          onPress={handleSubmit(handleShowPreview)}
         />
       </HStack>
     </VStack>

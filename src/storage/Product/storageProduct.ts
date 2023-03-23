@@ -42,7 +42,7 @@ export async function storageProductEdit(editProduct: ProductDTO) {
           price: editProduct.price,
           description: editProduct.description,
           is_active: editProduct.is_active,
-          acept_trade: editProduct.acept_trade,
+          accept_trade: editProduct.accept_trade,
           is_new: editProduct.is_new,
         }
     );

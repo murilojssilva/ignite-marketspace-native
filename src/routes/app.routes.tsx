@@ -14,16 +14,20 @@ import { PreviewAd } from "@screens/PreviewAd";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { Icon, useTheme } from "native-base";
-import { Platform } from "react-native";
+import { Alert, Platform } from "react-native";
+import { useAuth } from "@hooks/useAuth";
+import { useEffect } from "react";
+import { Loading } from "@components/Loading";
+import { PreviewAdDTO } from "@dtos/PreviewAdDTO";
 
 type AppRoutesProps = {
   home: undefined;
   myAds: undefined;
   editAd: undefined;
-  previewAd: undefined;
-  myAdDetails: undefined;
+  previewAd: PreviewAdDTO;
+  myAdDetails: { productId: string };
   createAd: undefined;
-  details: undefined;
+  details: { productId: string };
   logout: undefined;
 };
 
@@ -33,6 +37,18 @@ const { Navigator, Screen } = createBottomTabNavigator<AppRoutesProps>();
 
 export function AppRoutes() {
   const { sizes, colors } = useTheme();
+  const { signOut } = useAuth();
+
+  async function handleSignOut() {
+    return await Alert.alert(
+      "Sair da aplicação",
+      "Deseja fazer o logout do aplicativo?",
+      [
+        { text: "Sim", onPress: () => signOut() },
+        { text: "Não", style: "cancel" },
+      ]
+    );
+  }
 
   const iconSize = sizes[6];
   return (
@@ -82,7 +98,10 @@ export function AppRoutes() {
       />
       <Screen
         name="logout"
-        component={MyAds}
+        component={() => {
+          handleSignOut();
+          return <Home />;
+        }}
         options={{
           tabBarIcon: () => (
             <Icon

@@ -29,18 +29,18 @@ export function Textarea({
         px={4}
         borderWidth={0}
         fontSize="md"
-        color="white"
+        color="gray.1"
         fontFamily="body"
         placeholderTextColor="gray.4"
         isInvalid={invalid}
         _invalid={{
+          borderColor: "red_light",
           borderWidth: 1,
-          borderColor: "red.500",
         }}
         _focus={{
-          bg: "gray.5",
+          bg: "gray.7",
           borderWidth: 1,
-          borderColor: "green.500",
+          borderColor: "gray.1",
         }}
         rightElement={
           icon ? (

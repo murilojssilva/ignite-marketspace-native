@@ -6,6 +6,9 @@ import { useNavigation } from "@react-navigation/native";
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
 import { useAuth } from "@hooks/useAuth";
 
+import avatarImg from "@assets/userPhotoDefault.png";
+import { api } from "@services/api";
+
 export function HomeHeader() {
   const { user } = useAuth();
   const { navigate } = useNavigation<AppNavigatorRoutesProps>();
@@ -15,7 +18,11 @@ export function HomeHeader() {
   return (
     <HStack pt={8} pb={5} alignItems="center">
       <UserPhoto
-        source={{ uri: "https://github.com/murilojssilva.png" }}
+        source={
+          user.avatar
+            ? { uri: `${api.defaults.baseURL}/images/${user.avatar}` }
+            : avatarImg
+        }
         alt="Imagem do usuário"
         size={16}
         mr={4}

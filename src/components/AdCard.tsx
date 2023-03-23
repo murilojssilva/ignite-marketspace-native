@@ -1,4 +1,4 @@
-import { HStack, Heading, Icon, Text, VStack } from "native-base";
+import { HStack, Heading, Icon, Text, VStack, useToast } from "native-base";
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
@@ -7,15 +7,25 @@ import { AppNavigatorRoutesProps } from "@routes/app.routes";
 import { api } from "@services/api";
 import { ProductDTO } from "@dtos/ProductDTO";
 import { useCallback, useState } from "react";
+import { AppError } from "@utils/AppError";
 
 export function AdCard() {
   const [products, setProducts] = useState<ProductDTO[]>([] as ProductDTO[]);
+  const toast = useToast();
   async function fetchProducts() {
     try {
       const response = await api.get("/products");
       setProducts(response.data);
     } catch (error) {
-      throw error;
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível carregar os produtos";
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.500",
+      });
     }
   }
 

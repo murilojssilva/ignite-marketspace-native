@@ -1,5 +1,6 @@
 import { PaymentMethodDTO } from "./PaymentMethodDTO";
 import { ProductImageDTO } from "./ProductImagesDTO";
+import { UserDTO } from "./UserDTO";
 
 export type ProductDTO = {
   user_id: string;
@@ -12,7 +13,5 @@ export type ProductDTO = {
   is_active: boolean;
   payment_methods: PaymentMethodDTO[];
   product_images: ProductImageDTO[];
-  user: {
-    avatar: string;
-  };
+  user: UserDTO;
 };
