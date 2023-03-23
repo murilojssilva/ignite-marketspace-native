@@ -4,8 +4,10 @@ import { UserPhoto } from "./UserPhoto";
 import { Button } from "./Form/Button";
 import { useNavigation } from "@react-navigation/native";
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
+import { useAuth } from "@hooks/useAuth";
 
 export function HomeHeader() {
+  const { user } = useAuth();
   const { navigate } = useNavigation<AppNavigatorRoutesProps>();
   function handleCreateAd() {
     navigate("createAd");
@@ -23,7 +25,7 @@ export function HomeHeader() {
           Boas vindas,
         </Text>
         <Heading color="gray.1" fontFamily="bold" fontSize="lg">
-          Murilo!
+          {user?.name}!
         </Heading>
       </VStack>
       <Button

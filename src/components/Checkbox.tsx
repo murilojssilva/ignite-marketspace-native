@@ -1,3 +1,4 @@
+import { PaymentMethodDTO } from "@dtos/PaymentMethodDTO";
 import {
   HStack,
   Text,
@@ -6,11 +7,12 @@ import {
 } from "native-base";
 
 type CheckboxProps = ICheckboxProps & {
+  item: PaymentMethodDTO;
   text: string;
   value: string;
 };
 
-export function Checkbox({ text, value, ...rest }: CheckboxProps) {
+export function Checkbox({ item, text, value, ...rest }: CheckboxProps) {
   return (
     <HStack alignItems="center" p={1}>
       <NativeBaseCheckbox

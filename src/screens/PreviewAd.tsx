@@ -53,7 +53,13 @@ export function PreviewAd() {
           </Text>
         </HStack>
         <VStack px={6}>
-          <Badge mb={2} w={20} text="novo" />
+          <Badge
+            colorText="white"
+            variant="outFilter"
+            mb={2}
+            w={20}
+            state="NOVO"
+          />
           <VStack mb={2}>
             <Heading fontFamily="bold" fontSize="xl" color="gray.1">
               Bicicleta

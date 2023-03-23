@@ -34,12 +34,18 @@ export function Details() {
             mr={4}
           />
           <Text fontSize="sm" fontFamily="regular" color="gray.1">
-            Muriilo
+            Murilo
           </Text>
         </HStack>
 
         <VStack px={6}>
-          <Badge w={20} mb={2} text="novo" />
+          <Badge
+            colorText="white"
+            variant="outFilter"
+            w={20}
+            mb={2}
+            state="NOVO"
+          />
           <VStack mb={2}>
             <Heading fontFamily="bold" fontSize="xl" color="gray.1">
               Bicicleta

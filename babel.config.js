@@ -11,6 +11,7 @@ module.exports = function (api) {
             "@dtos": "./src/dtos",
             "@assets": "./src/assets",
             "@components": "./src/components",
+            "@constants": "./src/constants",
             "@screens": "./src/screens",
             "@storage": "./src/storage",
             "@utils": "./src/utils",

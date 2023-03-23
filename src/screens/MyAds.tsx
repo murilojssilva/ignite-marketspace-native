@@ -1,18 +1,57 @@
+import { EmptyProductList } from "@components/EmptyProductList";
 import { ItemCard } from "@components/ItemCard";
+import { Loading } from "@components/Loading";
 import { MyAdsHeader } from "@components/MyAdsHeader";
-import { useNavigation } from "@react-navigation/native";
+import { ProductDTO } from "@dtos/ProductDTO";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
+import { api } from "@services/api";
+import { AppError } from "@utils/AppError";
 import {
   CheckIcon,
+  FlatList,
   HStack,
-  ScrollView,
   Select,
   Text,
   VStack,
+  useToast,
 } from "native-base";
+import { useCallback, useState } from "react";
 
 export function MyAds() {
   const { navigate } = useNavigation<AppNavigatorRoutesProps>();
+
+  const toast = useToast();
+
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [products, setProducts] = useState<ProductDTO[]>([] as ProductDTO[]);
+
+  async function fetchProducts() {
+    try {
+      setIsLoadingProducts(true);
+      const response = await api.get("/products");
+      setProducts(response.data);
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível carregar os produtos";
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.500",
+      });
+    } finally {
+      setIsLoadingProducts(false);
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchProducts();
+    }, [products])
+  );
+
   function handleOpenCard() {
     navigate("myAdDetails");
   }
@@ -20,7 +59,7 @@ export function MyAds() {
     <VStack bg="gray.6">
       <MyAdsHeader />
       <HStack alignItems="center" p={2} justifyContent="space-around">
-        <Text>9 anúncios</Text>
+        <Text>{products.length} anúncios</Text>
 
         <Select
           _actionSheet={{
@@ -34,22 +73,46 @@ export function MyAds() {
           accessibilityLabel="Todos"
           placeholder="Todos"
         >
-          <Select.Item label="Todos" value="all" />
-          <Select.Item label="Todos" value="all" />
-          <Select.Item label="Todos" value="all" />
-          <Select.Item label="Todos" value="all" />
+          <Select.Item
+            label="Todos"
+            value="all"
+            onPress={() => setProducts(products)}
+          />
+          <Select.Item
+            label="Novos"
+            value="new"
+            onPress={() =>
+              setProducts(products.filter((product) => product.is_new))
+            }
+          />
+          <Select.Item
+            label="Usados"
+            value="used"
+            onPress={() =>
+              setProducts(products.filter((product) => !product.is_new))
+            }
+          />
         </Select>
       </HStack>
-      <ScrollView px={8} py={2} mt={6}>
-        <HStack justifyContent="space-between">
-          <ItemCard onPress={handleOpenCard} />
-          <ItemCard onPress={handleOpenCard} />
-        </HStack>
-        <HStack mt={2} justifyContent="space-between">
-          <ItemCard onPress={handleOpenCard} />
-          <ItemCard onPress={handleOpenCard} />
-        </HStack>
-      </ScrollView>
+      {!isLoadingProducts ? (
+        <Loading />
+      ) : (
+        <FlatList
+          data={products}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <ItemCard
+              product={item}
+              onPress={() => handleOpenCard()}
+              key={item.id}
+            />
+          )}
+          ListEmptyComponent={<EmptyProductList />}
+          numColumns={2}
+          _contentContainerStyle={{ alignItems: "center", pb: 20 }}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </VStack>
   );
 }

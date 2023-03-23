@@ -36,7 +36,7 @@ export function Input({ type, errorMessage, isInvalid, ...rest }: InputProps) {
           borderWidth="0"
           px="4"
           h="12"
-          fontFamily="marketspace_body"
+          fontFamily="regular"
           fontSize="md"
           placeholderTextColor="gray.4"
           color="gray.1"
