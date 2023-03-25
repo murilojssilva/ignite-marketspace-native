@@ -13,7 +13,7 @@ export function SearchBar({ handleFilterPress }: SearchBarProps) {
     <HStack bg="gray.7" alignItems="center" justifyContent="center" mb={6}>
       <Input
         bg="gray.7"
-        fontFamily="bold"
+        fontFamily="heading"
         fontSize="md"
         placeholder="Buscar anúncio"
         placeholderTextColor="gray.4"

@@ -82,7 +82,7 @@ export function UserItemCard({
           </Text>
           <Heading
             fontSize="xl"
-            fontFamily="bold"
+            fontFamily="heading"
             color="gray.1"
           >{`R$${product.price},00`}</Heading>
         </VStack>

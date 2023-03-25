@@ -9,6 +9,9 @@ export interface IProductContextProps {
   products: ProductDTO[];
   isLoadingProducts: boolean;
   activeProducts: number;
+  isLoadingProduct: boolean;
+  product: ProductDTO;
+  fetchProduct: (productId: string) => Promise<void>;
 }
 
 export const ProductsContext = createContext({} as IProductContextProps);
@@ -19,7 +22,9 @@ interface ProductsProviderProps {
 
 export async function ProductsProvider({ children }: ProductsProviderProps) {
   const [products, setProducts] = useState<ProductDTO[]>([] as ProductDTO[]);
+  const [product, setProduct] = useState<ProductDTO>({} as ProductDTO);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [isLoadingProduct, setIsLoadingProduct] = useState(false);
   const [activeProducts, setActiveProducts] = useState(0);
 
   const toast = useToast();
@@ -47,6 +52,26 @@ export async function ProductsProvider({ children }: ProductsProviderProps) {
     }
   }
 
+  async function fetchProduct(productId: string) {
+    try {
+      setIsLoadingProduct(true);
+      const response = await api.get(`/products/${productId}`);
+      setProduct(response.data);
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível carregar o produto";
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.500",
+      });
+    } finally {
+      setIsLoadingProduct(false);
+    }
+  }
+
   useFocusEffect(
     useCallback(() => {
       fetchProducts();
@@ -59,6 +84,9 @@ export async function ProductsProvider({ children }: ProductsProviderProps) {
         products,
         isLoadingProducts,
         activeProducts,
+        isLoadingProduct,
+        product,
+        fetchProduct,
       }}
     >
       {children}

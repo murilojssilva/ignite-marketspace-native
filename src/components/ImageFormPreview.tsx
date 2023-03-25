@@ -1,5 +1,7 @@
 import { Image, IImageProps } from "native-base";
 
+const IMAGE_SIZE = 24;
+
 type Props = IImageProps & {
   uri: string;
 };
@@ -7,8 +9,8 @@ type Props = IImageProps & {
 export function ImageFormPreview({ uri, ...rest }: Props) {
   return (
     <Image
-      w={24}
-      h={24}
+      w={IMAGE_SIZE}
+      h={IMAGE_SIZE}
       mr={2}
       mt={4}
       borderRadius={8}

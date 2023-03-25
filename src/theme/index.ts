@@ -29,7 +29,7 @@ export const THEME = extendTheme({
     light: "Karla_300Light",
     regular: "Karla_400Regular",
     medium: "Karla_600SemiBold",
-    bold: "Karla_700Bold",
+    heading: "Karla_700Bold",
   },
   fontSizes: {
     xs: 12,

@@ -31,7 +31,7 @@ export function HomeHeader() {
         <Text color="gray.1" fontFamily="regular" fontSize="md">
           Boas vindas,
         </Text>
-        <Heading color="gray.1" fontFamily="bold" fontSize="lg">
+        <Heading color="gray.1" fontFamily="heading" fontSize="lg">
           {user?.name}!
         </Heading>
       </VStack>

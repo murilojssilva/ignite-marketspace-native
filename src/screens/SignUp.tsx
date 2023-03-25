@@ -157,7 +157,7 @@ export function SignUp() {
       <VStack bg="gray.6" flex={1} px={10} pb={16}>
         <Center mt={24}>
           <LogoSvg />
-          <Heading fontSize="xl" color="gray.1" fontFamily="bold">
+          <Heading fontSize="xl" color="gray.1" fontFamily="heading">
             Boas vindas!
           </Heading>
           <Text
@@ -250,6 +250,7 @@ export function SignUp() {
                 mb={2}
                 onChangeText={onChange}
                 value={value}
+                isPassword
                 placeholder="Senha"
                 secureTextEntry
                 errorMessage={errors.password?.message}
@@ -265,6 +266,7 @@ export function SignUp() {
                 mb={2}
                 onChangeText={onChange}
                 value={value}
+                isPassword
                 placeholder="Confirmar a senha"
                 secureTextEntry
                 onSubmitEditing={handleSubmit(handleSignUp)}

@@ -23,11 +23,12 @@ import { PreviewAdDTO } from "@dtos/PreviewAdDTO";
 type AppRoutesProps = {
   home: undefined;
   myAds: undefined;
-  editAd: undefined;
+  editAd: { productId: string };
   previewAd: PreviewAdDTO;
   myAdDetails: { productId: string };
-  createAd: undefined;
   details: { productId: string };
+  createAd: undefined;
+
   logout: undefined;
 };
 

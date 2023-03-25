@@ -52,7 +52,7 @@ export function Button({
         )}
         <Text
           color={variant === "subtle" ? "gray.1" : "white"}
-          fontFamily="bold"
+          fontFamily="heading"
           fontSize="sm"
         >
           {title}

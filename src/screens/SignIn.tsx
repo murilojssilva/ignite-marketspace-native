@@ -78,7 +78,7 @@ export function SignIn() {
       <VStack flex={1} bg="gray.6" px={10} pb={16} rounded="lg">
         <Center my={24}>
           <LogoSvg />
-          <Heading fontSize="xl" color="gray.1" fontFamily="bold">
+          <Heading fontSize="xl" color="gray.1" fontFamily="heading">
             marketspace
           </Heading>
           <Text color="gray.3" fontSize="sm">
@@ -111,9 +111,10 @@ export function SignIn() {
               <Input
                 mb={2}
                 onChangeText={onChange}
+                isPassword
                 value={value}
                 placeholder="Senha"
-                secureTextEntry
+                type="password"
                 errorMessage={errors.password?.message}
                 onSubmitEditing={handleSubmit(handleSignIn)}
               />

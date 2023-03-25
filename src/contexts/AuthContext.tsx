@@ -84,7 +84,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
 
       toast.show({ title, placement: "top", bgColor: "red.500" });
     } finally {
-      setIsLoadingUserStorageData(true);
+      setIsLoadingUserStorageData(false);
     }
   }
 

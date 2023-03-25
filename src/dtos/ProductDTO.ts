@@ -3,7 +3,6 @@ import { ProductImageDTO } from "./ProductImagesDTO";
 import { UserDTO } from "./UserDTO";
 
 export type ProductDTO = {
-  user_id: string;
   id: string;
   name: string;
   description: string;
@@ -14,4 +13,5 @@ export type ProductDTO = {
   payment_methods: PaymentMethodDTO[];
   product_images: ProductImageDTO[];
   user: UserDTO;
+  user_id: string;
 };

@@ -16,7 +16,6 @@ import { ProductDTO } from "@dtos/ProductDTO";
 import { api } from "@services/api";
 
 import avatarImg from "@assets/userPhotoDefault.png";
-import { useAuth } from "@hooks/useAuth";
 
 type ItemCardProps = IPressableProps & {
   product: ProductDTO;
@@ -24,7 +23,6 @@ type ItemCardProps = IPressableProps & {
 };
 
 export function ItemCard({ product, isActive, ...rest }: ItemCardProps) {
-  const { user } = useAuth();
   return (
     <Pressable {...rest}>
       <VStack bg="gray.6" my={2} mx={1} rounded="xl">
@@ -79,7 +77,7 @@ export function ItemCard({ product, isActive, ...rest }: ItemCardProps) {
           </Text>
           <Heading
             fontSize="xl"
-            fontFamily="bold"
+            fontFamily="heading"
             color="gray.1"
           >{`R$${product.price},00`}</Heading>
         </VStack>

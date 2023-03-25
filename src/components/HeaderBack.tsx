@@ -25,7 +25,7 @@ export function HeaderBack({ title, icon, onPress }: HeaderBackProps) {
         <Heading
           alignItems="center"
           justifyContent="center"
-          fontFamily="bold"
+          fontFamily="heading"
           fontSize="xl"
           color="gray.1"
         >

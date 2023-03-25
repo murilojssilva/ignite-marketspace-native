@@ -24,7 +24,7 @@ export function Badge({
     >
       {icon ? (
         <HStack alignItems="center">
-          <Text color={colorText} fontFamily="bold" p={1}>
+          <Text color={colorText} fontFamily="heading" p={1}>
             {state}
           </Text>
           <Box
@@ -37,7 +37,7 @@ export function Badge({
           </Box>
         </HStack>
       ) : (
-        <Text color={colorText} fontFamily="bold" px={3} py={1}>
+        <Text color={colorText} fontFamily="heading" px={3} py={1}>
           {state}
         </Text>
       )}

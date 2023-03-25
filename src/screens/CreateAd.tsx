@@ -131,7 +131,7 @@ export function CreateAd() {
       <HeaderBack title="Criar anúncio" />
       <ScrollView px={8}>
         <VStack>
-          <Heading fontFamily="bold" fontSize="sm" color="gray.2">
+          <Heading fontFamily="heading" fontSize="sm" color="gray.2">
             Imagens
           </Heading>
           <Text mt={2} fontFamily="regular" fontSize="sm" color="gray.3">
@@ -158,17 +158,19 @@ export function CreateAd() {
                     </Pressable>
                   </Box>
                 ))}
-              <Box
-                mt={2}
-                bg="gray.5"
-                h={100}
-                w={100}
-                alignItems="center"
-                justifyContent="center"
-                borderRadius="sm"
-              >
-                <Icon as={Feather} name="plus" onPress={handleSelectImage} />
-              </Box>
+              <Pressable onPress={handleSelectImage}>
+                <Box
+                  mt={2}
+                  bg="gray.5"
+                  h={100}
+                  w={100}
+                  alignItems="center"
+                  justifyContent="center"
+                  borderRadius="sm"
+                >
+                  <Icon as={Feather} name="plus" />
+                </Box>
+              </Pressable>
             </HStack>
           </ScrollView>
         </VStack>

@@ -117,7 +117,7 @@ export function Home() {
           }}
         >
           <HStack width="100%" justifyContent="space-between">
-            <Heading color="gray.1" fontSize="xl" fontFamily="bold">
+            <Heading color="gray.1" fontSize="xl" fontFamily="heading">
               Filtrar anúncios
             </Heading>
             <TouchableOpacity onPress={onClose}>
@@ -125,7 +125,7 @@ export function Home() {
             </TouchableOpacity>
           </HStack>
           <VStack>
-            <Heading color="gray.1" fontSize="sm" fontFamily="bold">
+            <Heading color="gray.1" fontSize="sm" fontFamily="heading">
               Condição
             </Heading>
             <HStack py={3}>
@@ -185,12 +185,12 @@ export function Home() {
             </HStack>
           </VStack>
           <VStack>
-            <Heading mb={2} color="gray.1" fontSize="sm" fontFamily="bold">
+            <Heading mb={2} color="gray.1" fontSize="sm" fontFamily="heading">
               Aceita troca?
             </Heading>
             <Switch size="md" />
           </VStack>
-          <Heading pt={3} color="gray.1" fontSize="sm" fontFamily="bold">
+          <Heading pt={3} color="gray.1" fontSize="sm" fontFamily="heading">
             Meios de pagamento aceitos
           </Heading>
           <FlatList

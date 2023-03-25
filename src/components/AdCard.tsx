@@ -58,7 +58,7 @@ export function AdCard() {
           size={8}
         />
         <VStack px={2}>
-          <Heading fontFamily="bold" fontSize="md" color="gray.2">
+          <Heading fontFamily="heading" fontSize="md" color="gray.2">
             {products.filter((product) => product.is_active).length}
           </Heading>
           <Text fontFamily="regular" fontSize="xs" color="gray.2">
@@ -68,7 +68,7 @@ export function AdCard() {
       </HStack>
       <TouchableOpacity onPress={handleMyAds}>
         <HStack alignItems="center">
-          <Heading fontFamily="bold" fontSize="xs" color="blue.normal">
+          <Heading fontFamily="heading" fontSize="xs" color="blue.normal">
             Meus anúncios
           </Heading>
           <Icon

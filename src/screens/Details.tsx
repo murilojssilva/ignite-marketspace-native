@@ -22,8 +22,9 @@ import { useCallback, useState } from "react";
 import { ProductDTO } from "@dtos/ProductDTO";
 import { AppError } from "@utils/AppError";
 import { api } from "@services/api";
-import { Linking } from "react-native";
+import { Dimensions, Linking } from "react-native";
 import { Loading } from "@components/Loading";
+import { PaymentIcons } from "@components/PaymentIcons";
 
 type RouteParams = {
   productId: string;
@@ -42,7 +43,6 @@ export function Details() {
       setIsLoading(true);
       const response = await api.get(`/products/${productId}`);
       setProduct(response.data);
-      console.log(product.payment_methods);
     } catch (error) {
       const isAppError = error instanceof AppError;
       const title = isAppError
@@ -61,7 +61,7 @@ export function Details() {
   function handleOpenWhatsApp() {
     try {
       setIsLoading(true);
-      Linking.openURL(`https://wa.me/${product.user.tel}`);
+      Linking.openURL(`https://wa.me/${product.user?.tel}`);
     } catch (error) {
       const isAppError = error instanceof AppError;
       const title = isAppError
@@ -91,33 +91,52 @@ export function Details() {
       ) : (
         <VStack flex={1}>
           <ScrollView>
-            <Image
-              source={
-                !product.product_images[0].path
-                  ? {
-                      uri: `${api.defaults.baseURL}/images/${product.user.avatar}`,
-                    }
-                  : BicicleImage
-              }
+            <ScrollView
               w="full"
-              alt={product.name}
-              resizeMode="cover"
-            />
+              flex={1}
+              mt={2}
+              horizontal
+              showsHorizontalScrollIndicator={true}
+            >
+              {product.product_images ? (
+                product.product_images.map((image) => (
+                  <HStack alignItems="center">
+                    <Image
+                      width={Dimensions.get("screen").width}
+                      height={300}
+                      source={{
+                        uri: `${api.defaults.baseURL}/images/${image.path}`,
+                      }}
+                      alt={product.user?.name}
+                      resizeMode="cover"
+                      style={product.is_active === false && { opacity: 0.5 }}
+                    />
+                  </HStack>
+                ))
+              ) : (
+                <HStack alignItems="center">
+                  <Image
+                    width={Dimensions.get("screen").width}
+                    height={300}
+                    source={BicicleImage}
+                    alt="Imagem do produto"
+                    resizeMode="cover"
+                    style={product.is_active === false && { opacity: 0.5 }}
+                  />
+                </HStack>
+              )}
+            </ScrollView>
             <HStack p={6} h={20} alignItems="center">
               <UserPhoto
-                source={
-                  !product.user.avatar
-                    ? {
-                        uri: `${api.defaults.baseURL}/images/${product.user.avatar}`,
-                      }
-                    : defaultUserPhotoImg
-                }
-                alt="Imagem do usuário"
+                source={{
+                  uri: `${api.defaults.baseURL}/images/${product.user?.avatar}`,
+                }}
+                alt={product.user?.name}
                 size={16}
                 mr={4}
               />
               <Text fontSize="sm" fontFamily="regular" color="gray.1">
-                {product.user.name}
+                {product.user?.name}
               </Text>
             </HStack>
 
@@ -130,7 +149,7 @@ export function Details() {
                 state={product.is_new ? "NOVO" : "USADO"}
               />
               <VStack mb={2}>
-                <Heading fontFamily="bold" fontSize="xl" color="gray.1">
+                <Heading fontFamily="heading" fontSize="xl" color="gray.1">
                   {product.name}
                 </Heading>
                 <Text fontFamily="regular" fontSize="md" color="gray.1">
@@ -139,7 +158,12 @@ export function Details() {
               </VStack>
 
               <HStack mb={2} alignItems="center">
-                <Heading mr={2} fontFamily="bold" fontSize="md" color="gray.1">
+                <Heading
+                  mr={2}
+                  fontFamily="heading"
+                  fontSize="md"
+                  color="gray.1"
+                >
                   Aceita troca?
                 </Heading>
                 <Text fontFamily="regular" fontSize="md" color="gray.1">
@@ -147,63 +171,18 @@ export function Details() {
                 </Text>
               </HStack>
               <VStack>
-                <Heading mb={2} fontFamily="bold" fontSize="md" color="gray.1">
+                <Heading
+                  mb={2}
+                  fontFamily="heading"
+                  fontSize="md"
+                  color="gray.1"
+                >
                   Meios de pagamento
                 </Heading>
 
-                {product.payment_methods.find(
-                  (payment_method) => payment_method.key === "boleto"
-                ) && (
-                  <HStack alignItems="center">
-                    <Icon mr={2} as={FontAwesome} name="money" />
-                    <Text fontFamily="regular" fontSize="md" color="gray.1">
-                      Boleto
-                    </Text>
-                  </HStack>
-                )}
-                {product.payment_methods.find(
-                  (payment_method) => payment_method.key === "pix"
-                ) && (
-                  <HStack alignItems="center">
-                    <Icon mr={2} as={FontAwesome} name="qrcode" />
-                    <Text fontFamily="regular" fontSize="md" color="gray.1">
-                      Pix
-                    </Text>
-                  </HStack>
-                )}
-
-                {product.payment_methods.find(
-                  (payment_method) => payment_method.key === "cash"
-                ) && (
-                  <HStack alignItems="center">
-                    <Icon mr={2} as={FontAwesome} name="money" />
-                    <Text fontFamily="regular" fontSize="md" color="gray.1">
-                      Dinheiro
-                    </Text>
-                  </HStack>
-                )}
-
-                {product.payment_methods.find(
-                  (payment_method) => payment_method.key === "card"
-                ) && (
-                  <HStack alignItems="center">
-                    <Icon mr={2} as={FontAwesome} name="credit-card" />
-                    <Text fontFamily="regular" fontSize="md" color="gray.1">
-                      Cartão de Crédito
-                    </Text>
-                  </HStack>
-                )}
-
-                {product.payment_methods.find(
-                  (payment_method) => payment_method.key === "deposit"
-                ) && (
-                  <HStack alignItems="center">
-                    <Icon mr={2} as={FontAwesome} name="bank" />
-                    <Text fontFamily="regular" fontSize="md" color="gray.1">
-                      Depósito Bancário
-                    </Text>
-                  </HStack>
-                )}
+                {product.payment_methods?.map((item) => (
+                  <PaymentIcons key={item.key} name={item.name} />
+                ))}
               </VStack>
             </VStack>
           </ScrollView>
@@ -213,7 +192,7 @@ export function Details() {
             justifyContent="space-around"
             alignItems="center"
           >
-            <Heading color="blue.normal" fontFamily="bold" fontSize="xl">
+            <Heading color="blue.normal" fontFamily="heading" fontSize="xl">
               {`R$${product.price},00`}
             </Heading>
             <Button

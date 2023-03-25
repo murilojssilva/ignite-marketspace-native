@@ -24,6 +24,7 @@ import { PreviewAdDTO } from "@dtos/PreviewAdDTO";
 import { useAuth } from "@hooks/useAuth";
 import { api } from "@services/api";
 import { AppError } from "@utils/AppError";
+import { PaymentIcons } from "@components/PaymentIcons";
 
 export function PreviewAd() {
   const [isLoading, setIsLoading] = useState(false);
@@ -125,7 +126,7 @@ export function PreviewAd() {
   return (
     <VStack flex={1}>
       <VStack alignItems="center" bg="blue.light" pt={12} p={8}>
-        <Heading fontFamily="bold" fontSize="xl" color="gray.7">
+        <Heading fontFamily="heading" fontSize="xl" color="gray.7">
           Pré visualização do anúncio
         </Heading>
         <Text fontFamily="regular" fontSize="md" color="gray.7">
@@ -168,7 +169,7 @@ export function PreviewAd() {
             state={is_new ? "NOVO" : "USADO"}
           />
           <VStack mb={2}>
-            <Heading fontFamily="bold" fontSize="xl" color="gray.1">
+            <Heading fontFamily="heading" fontSize="xl" color="gray.1">
               {name}
             </Heading>
             <Text fontFamily="regular" fontSize="md" color="gray.1">
@@ -177,7 +178,7 @@ export function PreviewAd() {
           </VStack>
 
           <HStack mb={2} alignItems="center">
-            <Heading mr={2} fontFamily="bold" fontSize="md" color="gray.1">
+            <Heading mr={2} fontFamily="heading" fontSize="md" color="gray.1">
               Aceita troca?
             </Heading>
             <Text fontFamily="regular" fontSize="md" color="gray.1">
@@ -185,59 +186,12 @@ export function PreviewAd() {
             </Text>
           </HStack>
           <VStack>
-            <Heading mb={2} fontFamily="bold" fontSize="md" color="gray.1">
+            <Heading mb={2} fontFamily="heading" fontSize="md" color="gray.1">
               Meios de pagamento
             </Heading>
-            {payment_methods.find(
-              (payment_method) => payment_method.key === "boleto"
-            ) && (
-              <HStack alignItems="center">
-                <Icon mr={2} as={FontAwesome} name="money" />
-                <Text fontFamily="regular" fontSize="md" color="gray.1">
-                  Boleto
-                </Text>
-              </HStack>
-            )}
-            {payment_methods.find(
-              (payment_method) => payment_method.key === "pix"
-            ) && (
-              <HStack alignItems="center">
-                <Icon mr={2} as={FontAwesome} name="qrcode" />
-                <Text fontFamily="regular" fontSize="md" color="gray.1">
-                  Pix
-                </Text>
-              </HStack>
-            )}
-            {payment_methods.find(
-              (payment_method) => payment_method.key === "cash"
-            ) && (
-              <HStack alignItems="center">
-                <Icon mr={2} as={FontAwesome} name="money" />
-                <Text fontFamily="regular" fontSize="md" color="gray.1">
-                  Dinheiro
-                </Text>
-              </HStack>
-            )}
-            {payment_methods.find(
-              (payment_method) => payment_method.key === "credit_card"
-            ) && (
-              <HStack alignItems="center">
-                <Icon mr={2} as={FontAwesome} name="credit-card" />
-                <Text fontFamily="regular" fontSize="md" color="gray.1">
-                  Cartão de Crédito
-                </Text>
-              </HStack>
-            )}
-            {payment_methods.find(
-              (payment_method) => payment_method.key === "deposit"
-            ) && (
-              <HStack alignItems="center">
-                <Icon mr={2} as={FontAwesome} name="bank" />
-                <Text fontFamily="regular" fontSize="md" color="gray.1">
-                  Depósito Bancário
-                </Text>
-              </HStack>
-            )}
+            {payment_methods?.map((item) => (
+              <PaymentIcons key={item.key} name={item.name} />
+            ))}
           </VStack>
         </VStack>
       </ScrollView>
