@@ -24,7 +24,7 @@ import { AppNavigatorRoutesProps } from "@routes/app.routes";
 
 import { HeaderBack } from "@components/HeaderBack";
 import { Input } from "@components/Form/Input";
-import { Key, useCallback, useEffect, useState } from "react";
+import { Key, useCallback, useState } from "react";
 import { Switch } from "@components/Switch";
 import { Button } from "@components/Form/Button";
 import { ImageFormPreview } from "@components/ImageFormPreview";
@@ -272,32 +272,46 @@ export function EditAd() {
               horizontal
               showsHorizontalScrollIndicator={false}
             >
-              <HStack mt={2} alignItems="center">
+              <HStack alignItems="center" justifyContent="center">
                 {imagesUri &&
-                  imagesUri.map((imageUri: ProductImageDTO | string) => (
-                    <Box key={imageUri.id}>
+                  imagesUri.map((imageUri: ProductImageDTO) => (
+                    <Box
+                      key={imageUri.id}
+                      alignItems="flex-end"
+                      justifyContent="flex-start"
+                    >
                       <ImageFormPreview
                         uri={`${api.defaults.baseURL}/images/${imageUri.path}`}
                       />
 
                       <Pressable
-                        onPress={() => removeImage(imageUri as string)}
+                        rounded="full"
+                        w={4}
+                        onPress={() => removeImage(imageUri)}
                       >
-                        <Icon as={Feather} name="x" size={2} color="white" />
+                        <Icon
+                          mt={-90}
+                          ml={-14}
+                          bg="gray.1"
+                          as={Feather}
+                          name="x"
+                          size={4}
+                          color="gray.7"
+                        />
                       </Pressable>
                     </Box>
                   ))}
                 <Pressable onPress={handleSelectImage}>
                   <Box
-                    mt={2}
+                    mt={4}
                     bg="gray.5"
-                    h={BOX_SIZE}
-                    w={BOX_SIZE}
+                    h={100}
+                    w={100}
                     alignItems="center"
                     justifyContent="center"
                     borderRadius="sm"
                   >
-                    <Icon as={Feather} name="plus" />
+                    <Icon as={Feather} size={6} name="plus" />
                   </Box>
                 </Pressable>
               </HStack>
@@ -338,11 +352,9 @@ export function EditAd() {
           <Radio.Group
             name="radio"
             accessibilityLabel="tipo de produto"
-            value={is_new ? "new" : "used"}
-            onChange={(nextValue) => {
-              setIsNew(
-                nextValue === "new" ? true : nextValue === "old" ? false : false
-              );
+            value={isNew ? "new" : "used"}
+            onChange={(isNew) => {
+              setIsNew(isNew === "new" ? true : false);
             }}
           >
             <HStack alignItems="center" justifyContent="space-between">
@@ -351,7 +363,7 @@ export function EditAd() {
                   Produto novo
                 </Text>
               </Radio>
-              <Radio value="old" ml={2} my={1}>
+              <Radio value="used" ml={2} my={1}>
                 <Text fontSize="md" color="gray.2">
                   Produto usado
                 </Text>

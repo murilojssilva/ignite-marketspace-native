@@ -11,6 +11,7 @@ import {
   useToast,
   Checkbox as NativeBaseCheckbox,
   FlatList,
+  Pressable,
 } from "native-base";
 import { Feather } from "@expo/vector-icons";
 import { Input } from "@components/Form/Input";
@@ -28,7 +29,6 @@ import * as Yup from "yup";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { PAYMENT_METHODS } from "@constants/paymentMethods";
-import { Pressable } from "react-native";
 import { ImageFormPreview } from "@components/ImageFormPreview";
 import { PaymentMethodDTO } from "@dtos/PaymentMethodDTO";
 import { AppError } from "@utils/AppError";
@@ -55,7 +55,7 @@ export function CreateAd() {
     formState: { errors },
   } = useForm<FormDataProps>({ resolver: yupResolver(createAdSchema) });
 
-  const [is_new, setIsNew] = useState(false);
+  const [is_new, setIsNew] = useState(true);
   const [accept_trade, setAcceptTrade] = useState(false);
   const [payment_methods, setPayMethods] = useState<PaymentMethodDTO[]>(
     [] as PaymentMethodDTO[]
@@ -147,20 +147,36 @@ export function CreateAd() {
             horizontal
             showsHorizontalScrollIndicator={false}
           >
-            <HStack mt={2} alignItems="center">
-              {imagesUri.length > 0 &&
+            <HStack alignItems="center" justifyContent="center">
+              {imagesUri &&
                 imagesUri.map((imageUri) => (
-                  <Box key={imageUri}>
+                  <Box
+                    key={imageUri}
+                    alignItems="flex-end"
+                    justifyContent="flex-start"
+                  >
                     <ImageFormPreview uri={imageUri} />
 
-                    <Pressable onPress={() => removeImage(imageUri)}>
-                      <Icon as={Feather} name="x" size={2} color="white" />
+                    <Pressable
+                      rounded="full"
+                      w={4}
+                      onPress={() => removeImage(imageUri)}
+                    >
+                      <Icon
+                        mt={-90}
+                        ml={-14}
+                        bg="gray.1"
+                        as={Feather}
+                        name="x"
+                        size={4}
+                        color="gray.7"
+                      />
                     </Pressable>
                   </Box>
                 ))}
               <Pressable onPress={handleSelectImage}>
                 <Box
-                  mt={2}
+                  mt={4}
                   bg="gray.5"
                   h={100}
                   w={100}
@@ -168,7 +184,7 @@ export function CreateAd() {
                   justifyContent="center"
                   borderRadius="sm"
                 >
-                  <Icon as={Feather} name="plus" />
+                  <Icon as={Feather} size={6} name="plus" />
                 </Box>
               </Pressable>
             </HStack>
@@ -210,10 +226,8 @@ export function CreateAd() {
           name="radio"
           accessibilityLabel="tipo de produto"
           value={is_new ? "new" : "used"}
-          onChange={(nextValue) => {
-            setIsNew(
-              nextValue === "new" ? true : nextValue === "old" ? false : false
-            );
+          onChange={(is_new) => {
+            setIsNew(is_new === "new" ? true : false);
           }}
         >
           <HStack alignItems="center" justifyContent="space-between">
@@ -222,7 +236,7 @@ export function CreateAd() {
                 Produto novo
               </Text>
             </Radio>
-            <Radio value="old" ml={2} my={1}>
+            <Radio value="used" ml={2} my={1}>
               <Text fontSize="md" color="gray.2">
                 Produto usado
               </Text>
@@ -241,7 +255,7 @@ export function CreateAd() {
                 mb={2}
                 onChangeText={onChange}
                 keyboardType="numeric"
-                value={String(value)}
+                value={value}
                 placeholder="Valor do produto"
                 errorMessage={errors.price?.message}
               />
