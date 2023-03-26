@@ -191,10 +191,7 @@ export function PreviewAd() {
               Meios de pagamento
             </Heading>
             {payment_methods?.map((item) => (
-              <PaymentIcons
-                key={item.key as "cash" | "deposit" | "boleto" | "pix" | "card"}
-                name={item.name}
-              />
+              <PaymentIcons name={item.name} />
             ))}
           </VStack>
         </VStack>

@@ -2,38 +2,14 @@ import { HStack, Heading, Icon, Text, VStack, useToast } from "native-base";
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
-import { api } from "@services/api";
-import { ProductDTO } from "@dtos/ProductDTO";
-import { useCallback, useState } from "react";
-import { AppError } from "@utils/AppError";
+import { useProduct } from "@hooks/useProduct";
 
 export function AdCard() {
-  const [products, setProducts] = useState<ProductDTO[]>([] as ProductDTO[]);
-  const toast = useToast();
-  async function fetchProducts() {
-    try {
-      const response = await api.get("/products");
-      setProducts(response.data);
-    } catch (error) {
-      const isAppError = error instanceof AppError;
-      const title = isAppError
-        ? error.message
-        : "Não foi possível carregar os produtos";
-      toast.show({
-        title,
-        placement: "top",
-        bgColor: "red.500",
-      });
-    }
-  }
+  const { myProducts } = useProduct();
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchProducts();
-    }, [])
-  );
+  const activeAds = myProducts.filter((product) => product.is_active).length;
 
   const { navigate } = useNavigation<AppNavigatorRoutesProps>();
   function handleMyAds() {
@@ -59,10 +35,10 @@ export function AdCard() {
         />
         <VStack px={2}>
           <Heading fontFamily="heading" fontSize="md" color="gray.2">
-            {products.filter((product) => product.is_active).length}
+            {activeAds}
           </Heading>
           <Text fontFamily="regular" fontSize="xs" color="gray.2">
-            anúncios ativos
+            {activeAds === 1 ? "anúncio ativo" : "anúncios ativos"}
           </Text>
         </VStack>
       </HStack>

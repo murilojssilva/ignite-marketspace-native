@@ -133,8 +133,6 @@ export function SignUp() {
         },
       });
       signIn(email, password);
-
-      console.log("usuário cadastrado");
     } catch (error) {
       setIsLoading(false);
       const isAppError = error instanceof AppError;

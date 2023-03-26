@@ -29,6 +29,8 @@ import { Dimensions } from "react-native";
 import { Alert } from "react-native";
 import { PaymentIcons } from "@components/PaymentIcons";
 import { Values } from "@components/Values";
+import { PaymentMethodDTO } from "@dtos/PaymentMethodDTO";
+import { priceFormatter } from "@utils/formatter";
 
 type RouteParams = {
   productId: string;
@@ -165,120 +167,145 @@ export function MyAdDetails() {
       {isLoading ? (
         <Loading />
       ) : (
-        <ScrollView flex={1}>
-          <VStack>
-            <ScrollView>
-              <ScrollView
-                w="full"
-                mt={2}
-                horizontal
-                showsHorizontalScrollIndicator={true}
-              >
-                {product.product_images ? (
-                  product.product_images.map((image) => (
-                    <HStack alignItems="center" key={image.id}>
-                      <Image
-                        width={Dimensions.get("screen").width}
-                        height={300}
-                        source={{
-                          uri: `${api.defaults.baseURL}/images/${image.path}`,
-                        }}
-                        alt={product.user?.name}
-                        resizeMode="cover"
-                        style={product.is_active === false && { opacity: 0.5 }}
-                      />
-                    </HStack>
-                  ))
+        <VStack flex={1}>
+          <ScrollView>
+            <VStack>
+              <ScrollView>
+                {product.is_active ? (
+                  <ScrollView
+                    w="full"
+                    mt={2}
+                    horizontal
+                    showsHorizontalScrollIndicator={true}
+                  >
+                    {product.product_images ? (
+                      product.product_images.map((image) => (
+                        <HStack alignItems="center" key={image.id}>
+                          <Image
+                            width={Dimensions.get("screen").width}
+                            height={300}
+                            source={{
+                              uri: `${api.defaults.baseURL}/images/${image.path}`,
+                            }}
+                            alt={product.user?.name}
+                            resizeMode="cover"
+                            style={
+                              product.is_active === false && { opacity: 0.5 }
+                            }
+                          />
+                        </HStack>
+                      ))
+                    ) : (
+                      <HStack alignItems="center">
+                        <Image
+                          width={Dimensions.get("screen").width}
+                          height={300}
+                          source={PlaceholderImage}
+                          alt="imagem do produto"
+                          resizeMode="cover"
+                          style={{ opacity: 0.5 }}
+                        />
+                      </HStack>
+                    )}
+                  </ScrollView>
                 ) : (
-                  <HStack alignItems="center">
+                  <VStack alignItems="center" justifyContent="center">
                     <Image
                       width={Dimensions.get("screen").width}
                       height={300}
-                      source={PlaceholderImage}
-                      alt="imagem do produto"
+                      source={{
+                        uri: `${api.defaults.baseURL}/images/${product.product_images[0].path}`,
+                      }}
+                      alt={product.user?.name}
                       resizeMode="cover"
                       style={product.is_active === false && { opacity: 0.5 }}
                     />
-                  </HStack>
-                )}
-              </ScrollView>
-              <HStack p={6} h={20} alignItems="center">
-                <UserPhoto
-                  source={{
-                    uri: `${api.defaults.baseURL}/images/${product.user?.avatar}`,
-                  }}
-                  type="forms"
-                  alt={product.user?.avatar}
-                  size={8}
-                  mr={4}
-                />
-                <Text fontSize="sm" fontFamily="regular" color="gray.1">
-                  {product.user?.name}
-                </Text>
-              </HStack>
-
-              <VStack px={6}>
-                <Badge
-                  colorText={product.is_new ? "white" : "gray.1"}
-                  variant="outFilter"
-                  w={20}
-                  mb={2}
-                  state={product.is_new ? "NOVO" : "USADO"}
-                />
-                <VStack mb={2}>
-                  <HStack justifyContent="space-between">
-                    <Heading fontFamily="heading" fontSize="xl" color="gray.1">
-                      {product.name}
+                    <Heading
+                      position="absolute"
+                      mt={-200}
+                      color="gray.7"
+                      fontSize="md"
+                      fontFamily="heading"
+                    >
+                      ANÚNCIO DESATIVADO
                     </Heading>
-                    <Values value={`${product.price},00`} type="top" />
-                  </HStack>
-                  <Text fontFamily="regular" fontSize="md" color="gray.1">
-                    {product.description}
-                  </Text>
-                </VStack>
-
-                <HStack mb={2} alignItems="center">
-                  <Heading
-                    mr={2}
-                    fontFamily="heading"
-                    fontSize="md"
-                    color="gray.1"
-                  >
-                    Aceita troca?
-                  </Heading>
-                  <Text fontFamily="regular" fontSize="md" color="gray.1">
-                    {product.accept_trade ? "Sim" : "Não"}
+                  </VStack>
+                )}
+                <HStack p={6} h={20} alignItems="center">
+                  <UserPhoto
+                    source={{
+                      uri: `${api.defaults.baseURL}/images/${product.user?.avatar}`,
+                    }}
+                    type="forms"
+                    alt={product.user?.avatar}
+                    size={8}
+                    mr={4}
+                  />
+                  <Text fontSize="sm" fontFamily="regular" color="gray.1">
+                    {product.user?.name}
                   </Text>
                 </HStack>
-                <VStack>
-                  <Heading
-                    mb={2}
-                    fontFamily="heading"
-                    fontSize="md"
-                    color="gray.1"
-                  >
-                    Meios de pagamento
-                  </Heading>
 
-                  {product.payment_methods?.map((item) => (
-                    <VStack key={item.key}>
-                      <PaymentIcons
-                        key={
-                          item.key as
-                            | "cash"
-                            | "deposit"
-                            | "boleto"
-                            | "pix"
-                            | "card"
-                        }
-                        name={item.name}
+                <VStack px={6}>
+                  <Badge
+                    colorText={product.is_new ? "white" : "gray.1"}
+                    variant="outFilter"
+                    w={20}
+                    mb={2}
+                    state={product.is_new ? "NOVO" : "USADO"}
+                  />
+                  <VStack mb={2}>
+                    <HStack justifyContent="space-between">
+                      <Heading
+                        fontFamily="heading"
+                        fontSize="xl"
+                        color="gray.1"
+                      >
+                        {product.name}
+                      </Heading>
+                      <Values
+                        value={priceFormatter.format(Number(product.price))}
+                        type="top"
                       />
-                    </VStack>
-                  ))}
+                    </HStack>
+                    <Text fontFamily="regular" fontSize="md" color="gray.1">
+                      {product.description}
+                    </Text>
+                  </VStack>
+
+                  <HStack mb={2} alignItems="center">
+                    <Heading
+                      mr={2}
+                      fontFamily="heading"
+                      fontSize="md"
+                      color="gray.1"
+                    >
+                      Aceita troca?
+                    </Heading>
+                    <Text fontFamily="regular" fontSize="md" color="gray.1">
+                      {product.accept_trade ? "Sim" : "Não"}
+                    </Text>
+                  </HStack>
+                  <VStack>
+                    <Heading
+                      mb={2}
+                      fontFamily="heading"
+                      fontSize="md"
+                      color="gray.1"
+                    >
+                      Meios de pagamento
+                    </Heading>
+
+                    {product.payment_methods?.map((item: PaymentMethodDTO) => (
+                      <VStack key={item.name}>
+                        <PaymentIcons name={item.name} />
+                      </VStack>
+                    ))}
+                  </VStack>
                 </VStack>
-              </VStack>
-            </ScrollView>
-          </VStack>
+              </ScrollView>
+            </VStack>
+          </ScrollView>
           <VStack p={6} justifyContent="space-around" alignItems="center">
             <Button
               mb={2}
@@ -286,7 +313,7 @@ export function MyAdDetails() {
               title={
                 product.is_active ? "Desativar anúncio" : "Reativar anúncio"
               }
-              variant={product.is_active ? "solid" : "outline"}
+              variant={product.is_active ? "outline" : "solid"}
               onPress={handleChangeStatus}
               isLoading={changeStatusLoading}
             />
@@ -298,7 +325,7 @@ export function MyAdDetails() {
               onPress={handleRemoveAd}
             />
           </VStack>
-        </ScrollView>
+        </VStack>
       )}
     </VStack>
   );

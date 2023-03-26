@@ -1,41 +1,32 @@
-import { HStack, Icon, Text } from "native-base";
+import { HStack, Icon, Text, IIconProps } from "native-base";
 
 import { FontAwesome } from "@expo/vector-icons";
 
-type PaymentIconsProps = {
-  key: "cash" | "deposit" | "boleto" | "pix" | "card";
+type PaymentIconsProps = IIconProps & {
   name: string;
 };
 
-export function PaymentIcons({ key, name }: PaymentIconsProps) {
+export function PaymentIcons({ name, ...rest }: PaymentIconsProps) {
   return (
-    <HStack alignItems="center" key={key}>
+    <HStack alignItems="center">
       <Icon
         color="gray.1"
         as={FontAwesome}
         mr={2}
         name={
-          key === "cash"
+          name === "Dinheiro"
             ? "money"
-            : key === "deposit"
+            : name === "Depósito Bancário"
             ? "bank"
-            : key === "boleto"
+            : name === "Boleto"
             ? "barcode"
-            : key === "pix"
+            : name === "Pix"
             ? "qrcode"
-            : "credit-card"
+            : name === "Cartão de Crédito"
+            ? "credit-card"
+            : "image"
         }
-        /*name={
-          key === "cash"
-            ? "money"
-            : key === "deposit"
-            ? "bank"
-            : key === "boleto"
-            ? "barcode"
-            : key === "pix"
-            ? "qrcode"
-            : ""
-        }*/
+        {...rest}
       />
       <Text fontFamily="regular" fontSize="md" color="gray.1">
         {name}

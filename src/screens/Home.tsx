@@ -1,19 +1,16 @@
-import { useCallback, useEffect, useState } from "react";
 import { TouchableOpacity } from "react-native";
-
 import { Feather } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
 import {
   Actionsheet,
+  Center,
   FlatList,
   HStack,
   Heading,
   Icon,
   Text,
   VStack,
-  useDisclose,
-  useToast,
 } from "native-base";
 
 import { Badge } from "@components/Badge";
@@ -25,130 +22,56 @@ import { ItemCard } from "@components/ItemCard";
 import { Switch } from "@components/Switch";
 import { SearchBar } from "@components/SearchBar";
 
-import { AppNavigatorRoutesProps } from "@routes/app.routes";
 import { EmptyProductList } from "@components/EmptyProductList";
-import { Loading } from "@components/Loading";
 import { PAYMENT_METHODS } from "@constants/paymentMethods";
-import { AppError } from "@utils/AppError";
-import { api } from "@services/api";
-import { ProductDTO } from "@dtos/ProductDTO";
+
+import { SkeletonCard } from "@components/SkeletonCard";
+import { useProduct } from "@hooks/useProduct";
+import { useAuth } from "@hooks/useAuth";
+import { useCallback } from "react";
+import { AppNavigatorRoutesProps } from "@routes/app.routes";
 
 export function Home() {
-  const { isOpen, onOpen, onClose } = useDisclose();
-  const { navigate } = useNavigation<AppNavigatorRoutesProps>();
-  const [state, setState] = useState<"NOVO" | "USADO" | "">("");
+  const { user } = useAuth();
 
-  const [acceptTrade, setAcceptTrade] = useState(false);
+  const {
+    products,
+    acceptTrade,
+    state,
+    isLoadingProducts,
+    isOpen,
+    onOpen,
+    onClose,
+    handleFilterByName,
+    handleCondition,
+    setState,
+    setAcceptTrade,
+    handleResetFilters,
+    handleFilterProducts,
+    setProducts,
+    fetchProducts,
+    fetchMyProducts,
+  } = useProduct();
 
-  const toast = useToast();
-
-  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
-  const [products, setProducts] = useState<ProductDTO[]>([] as ProductDTO[]);
-  const [filterName, setFilterName] = useState("");
-  const [paymentMethods, setPaymentMethods] = useState([]);
-  const [isNew, setIsNew] = useState(false);
+  const navigation = useNavigation<AppNavigatorRoutesProps>();
 
   function handleOpenCard(productId: string) {
-    navigate("details", { productId });
+    navigation.navigate("details", { productId });
   }
 
-  function handleCondition(item: "NOVO" | "USADO" | "") {
-    setState(item);
-    setIsNew(item === "NOVO" ? true : false);
-  }
-
-  async function fetchProducts() {
-    try {
-      setIsLoadingProducts(true);
-      const response = await api.get("/products");
-      setProducts(response.data);
-    } catch (error) {
-      const isAppError = error instanceof AppError;
-      const title = isAppError
-        ? error.message
-        : "Não foi possível carregar os produtos";
-      toast.show({
-        title,
-        placement: "top",
-        bgColor: "red.500",
-      });
-    } finally {
-      setIsLoadingProducts(false);
-    }
-  }
-
-  async function handleFilterProducts() {
-    try {
-      setIsLoadingProducts(true);
-      const params = `is_new=${isNew}&accept_trade=${acceptTrade}&payment_methods=${JSON.stringify(
-        paymentMethods
-      )}`;
-      const response = await api.get(`/products?${params}`);
-      setProducts(response.data);
-      onClose();
-    } catch (error) {
-      const isAppError = error instanceof AppError;
-      const title = isAppError
-        ? error.message
-        : "Não foi possível carregar os filtros do produto";
-      toast.show({
-        title,
-        placement: "top",
-        bgColor: "red.500",
-      });
-    } finally {
-      setIsLoadingProducts(false);
-    }
-  }
-
-  async function handleFilterByName() {
-    try {
-      const response = await api.get(`/products?query=${filterName}`);
-      setProducts(response.data);
-    } catch (error) {
-      const isAppError = error instanceof AppError;
-      const title = isAppError
-        ? error.message
-        : "Não foi possível carregar os filtros do produto";
-
-      toast.show({
-        title,
-        placement: "top",
-        bgColor: "red.500",
-      });
-    }
-  }
-
-  function resetCondition() {
-    setState("");
-    setPaymentMethods([]);
-  }
-
-  async function handleResetFilters() {
-    try {
-      resetCondition();
-      setFilterName("");
-      setAcceptTrade(false);
-      setPaymentMethods([]);
-
-      await fetchProducts();
-    } catch (error) {
-      const isAppError = error instanceof AppError;
-      const title = isAppError
-        ? error.message
-        : "Não foi possível carregar os resetar os filtros do produto";
-
-      toast.show({
-        title,
-        placement: "top",
-        bgColor: "red.500",
-      });
-    }
+  function handleOpenMyAdCard(productId: string) {
+    navigation.navigate("myAdDetails", { productId });
   }
 
   useFocusEffect(
     useCallback(() => {
       fetchProducts();
+    }, [])
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchMyProducts();
     }, [])
   );
 
@@ -167,7 +90,20 @@ export function Home() {
       </VStack>
 
       {isLoadingProducts ? (
-        <Loading />
+        <Center>
+          <FlatList
+            data={["1", "2", "3", "4"]}
+            keyExtractor={(item) => item}
+            renderItem={({ item }) => <SkeletonCard key={item} />}
+            contentContainerStyle={[
+              ["1", "2", "3", "4"].length === 0 && { flex: 1 },
+            ]}
+            ListEmptyComponent={<EmptyProductList />}
+            numColumns={2}
+            _contentContainerStyle={{ alignItems: "center", pb: 20 }}
+            showsVerticalScrollIndicator={false}
+          />
+        </Center>
       ) : (
         <FlatList
           data={products}
@@ -175,7 +111,11 @@ export function Home() {
           renderItem={({ item }) => (
             <ItemCard
               product={item}
-              onPress={() => handleOpenCard(item.id)}
+              onPress={() =>
+                item.user.id === user.id
+                  ? handleOpenMyAdCard(item.id)
+                  : handleOpenCard(item.id)
+              }
               key={item.id}
             />
           )}

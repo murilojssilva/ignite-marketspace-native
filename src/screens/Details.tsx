@@ -15,76 +15,35 @@ import { UserPhoto } from "@components/UserPhoto";
 import { Badge } from "@components/Badge";
 import { Button } from "@components/Form/Button";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
-import { useCallback, useState } from "react";
-import { ProductDTO } from "@dtos/ProductDTO";
-import { AppError } from "@utils/AppError";
+import { useCallback } from "react";
 import { api } from "@services/api";
 import { Dimensions, Linking } from "react-native";
 import { Loading } from "@components/Loading";
 import { PaymentIcons } from "@components/PaymentIcons";
 import { Values } from "@components/Values";
+import { useProduct } from "@hooks/useProduct";
+import { priceFormatter } from "@utils/formatter";
 
 type RouteParams = {
   productId: string;
 };
 
 export function Details() {
-  const [product, setProduct] = useState<ProductDTO>({} as ProductDTO);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const toast = useToast();
   const route = useRoute();
   const { productId } = route.params as RouteParams;
-
-  async function fetchProduct() {
-    try {
-      setIsLoading(true);
-      const response = await api.get(`/products/${productId}`);
-      setProduct(response.data);
-    } catch (error) {
-      const isAppError = error instanceof AppError;
-      const title = isAppError
-        ? error.message
-        : "Não foi possível carregar os produtos";
-      toast.show({
-        title,
-        placement: "top",
-        bgColor: "red.500",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  function handleOpenWhatsApp() {
-    try {
-      setIsLoading(true);
-      Linking.openURL(`https://wa.me/${product.user?.tel}`);
-    } catch (error) {
-      const isAppError = error instanceof AppError;
-      const title = isAppError
-        ? error.message
-        : "Não foi possível carregar os dados.";
-
-      toast.show({
-        title,
-        placement: "top",
-        bgColor: "red.500",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  const { product, isLoadingProduct, handleOpenWhatsApp, fetchProduct } =
+    useProduct();
 
   useFocusEffect(
     useCallback(() => {
-      fetchProduct();
+      fetchProduct(productId);
     }, [productId])
   );
+
   return (
     <VStack bg="gray.6" flex={1}>
       <HeaderBack />
-      {isLoading ? (
+      {isLoadingProduct ? (
         <Loading />
       ) : (
         <VStack flex={1}>
@@ -151,7 +110,10 @@ export function Details() {
                   <Heading fontFamily="heading" fontSize="xl" color="gray.1">
                     {product.name}
                   </Heading>
-                  <Values value={`${product.price},00`} type="top" />
+                  <Values
+                    value={priceFormatter.format(Number(product.price))}
+                    type="top"
+                  />
                 </HStack>
                 <Text fontFamily="regular" fontSize="md" color="gray.1">
                   {product.description}
@@ -182,12 +144,7 @@ export function Details() {
                 </Heading>
 
                 {product.payment_methods?.map((item) => (
-                  <PaymentIcons
-                    key={
-                      item.key as "cash" | "deposit" | "boleto" | "pix" | "card"
-                    }
-                    name={item.name}
-                  />
+                  <PaymentIcons name={item.name} />
                 ))}
               </VStack>
             </VStack>
@@ -198,7 +155,10 @@ export function Details() {
             justifyContent="space-around"
             alignItems="center"
           >
-            <Values value={`${product.price},00`} type="bottom" />
+            <Values
+              value={priceFormatter.format(Number(product.price))}
+              type="bottom"
+            />
             <Button
               icon="phone"
               title="Entrar em contato"

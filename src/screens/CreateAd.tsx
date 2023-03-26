@@ -98,7 +98,6 @@ export function CreateAd() {
 
   function handleShowPreview({ name, description, price }: FormDataProps) {
     try {
-      console.log(imagesUri);
       navigation.navigate("previewAd", {
         name,
         description,
@@ -250,7 +249,14 @@ export function CreateAd() {
             render={({ field: { onChange, value } }) => (
               <Input
                 mb={2}
-                onChangeText={onChange}
+                onChangeText={(value) =>
+                  onChange(
+                    value
+                      .replace(".", "")
+                      .replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+                      .replace(/(,\d{2})\d+$/, "$1")
+                  )
+                }
                 keyboardType="numeric"
                 value={value}
                 placeholder="Valor do produto"
