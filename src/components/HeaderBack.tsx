@@ -1,4 +1,4 @@
-import { HStack, Icon, Heading } from "native-base";
+import { HStack, Icon, Heading, Center, View, Text, Box } from "native-base";
 import { Feather } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
@@ -22,17 +22,13 @@ export function HeaderBack({ title, icon, onPress }: HeaderBackProps) {
         <Icon as={Feather} name="arrow-left" size={6} color="gray.1" />
       </TouchableOpacity>
       {title && (
-        <Heading
-          alignItems="center"
-          justifyContent="center"
-          fontFamily="heading"
-          fontSize="xl"
-          color="gray.1"
-        >
-          {title}
-        </Heading>
+        <Box flex={1} justifyContent="center" alignItems="center">
+          <Heading fontFamily="heading" fontSize="xl" color="gray.1">
+            {title}
+          </Heading>
+        </Box>
       )}
-      {icon && (
+      {icon ? (
         <Icon
           onPress={onPress}
           as={Feather}
@@ -40,6 +36,8 @@ export function HeaderBack({ title, icon, onPress }: HeaderBackProps) {
           size={6}
           color="gray.1"
         />
+      ) : (
+        <></>
       )}
     </HStack>
   );
