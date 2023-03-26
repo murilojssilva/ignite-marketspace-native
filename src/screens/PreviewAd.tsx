@@ -135,11 +135,11 @@ export function PreviewAd() {
       </VStack>
       <ScrollView>
         {imagesUri.map((image) => {
-          <ScrollView horizontal>
+          <ScrollView horizontal key={image}>
             <Image
               source={{ uri: image }}
               w="full"
-              alt="Bicicleta"
+              alt={name}
               resizeMode="cover"
             />
           </ScrollView>;
@@ -152,6 +152,7 @@ export function PreviewAd() {
                 ? { uri: `${api.defaults.baseURL}/images/${user.avatar}` }
                 : avatarImg
             }
+            type="forms"
             alt="Imagem do usuário"
             size={10}
             mr={4}
@@ -190,7 +191,10 @@ export function PreviewAd() {
               Meios de pagamento
             </Heading>
             {payment_methods?.map((item) => (
-              <PaymentIcons key={item.key} name={item.name} />
+              <PaymentIcons
+                key={item.key as "cash" | "deposit" | "boleto" | "pix" | "card"}
+                name={item.name}
+              />
             ))}
           </VStack>
         </VStack>

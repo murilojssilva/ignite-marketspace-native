@@ -9,7 +9,7 @@ import {
   useToast,
 } from "native-base";
 
-import BicicleImage from "@assets/Bicycle.png";
+import PlaceholderImage from "@assets/placeholderImage.png";
 
 import { UserPhoto } from "@components/UserPhoto";
 import { Badge } from "@components/Badge";
@@ -28,6 +28,7 @@ import { Loading } from "@components/Loading";
 import { Dimensions } from "react-native";
 import { Alert } from "react-native";
 import { PaymentIcons } from "@components/PaymentIcons";
+import { Values } from "@components/Values";
 
 type RouteParams = {
   productId: string;
@@ -47,7 +48,19 @@ export function MyAdDetails() {
   const { navigate } = useNavigation<AppNavigatorRoutesProps>();
 
   function handleEditAd() {
-    navigate("editAd", { productId });
+    navigate("editAd", {
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      product_images: product.product_images,
+      payment_methods: product.payment_methods,
+      is_new: product.is_new,
+      accept_trade: product.accept_trade,
+      id: product.id,
+      is_active: product.is_active,
+      user: product.user,
+      user_id: product.user_id,
+    });
   }
 
   async function fetchProduct() {
@@ -55,11 +68,6 @@ export function MyAdDetails() {
       setIsLoading(true);
       const response = await api.get(`/products/${productId}`);
       setProduct(response.data);
-      console.log(
-        product.product_images.map(
-          (image) => `${api.defaults.baseURL}/images/${image.path}`
-        )
-      );
     } catch (error) {
       const isAppError = error instanceof AppError;
       const title = isAppError
@@ -157,111 +165,120 @@ export function MyAdDetails() {
       {isLoading ? (
         <Loading />
       ) : (
-        <VStack>
-          <ScrollView>
-            <VStack flex={1}>
-              <ScrollView>
-                <ScrollView
-                  w="full"
-                  flex={1}
-                  mt={2}
-                  horizontal
-                  showsHorizontalScrollIndicator={true}
-                >
-                  {product.product_images ? (
-                    product.product_images.map((image) => (
-                      <HStack alignItems="center">
-                        <Image
-                          width={Dimensions.get("screen").width}
-                          height={300}
-                          source={{
-                            uri: `${api.defaults.baseURL}/images/${image.path}`,
-                          }}
-                          alt={product.user?.name}
-                          resizeMode="cover"
-                          style={
-                            product.is_active === false && { opacity: 0.5 }
-                          }
-                        />
-                      </HStack>
-                    ))
-                  ) : (
-                    <HStack alignItems="center">
+        <ScrollView flex={1}>
+          <VStack>
+            <ScrollView>
+              <ScrollView
+                w="full"
+                mt={2}
+                horizontal
+                showsHorizontalScrollIndicator={true}
+              >
+                {product.product_images ? (
+                  product.product_images.map((image) => (
+                    <HStack alignItems="center" key={image.id}>
                       <Image
                         width={Dimensions.get("screen").width}
                         height={300}
-                        source={BicicleImage}
-                        alt="imagem do produto"
+                        source={{
+                          uri: `${api.defaults.baseURL}/images/${image.path}`,
+                        }}
+                        alt={product.user?.name}
                         resizeMode="cover"
                         style={product.is_active === false && { opacity: 0.5 }}
                       />
                     </HStack>
-                  )}
-                </ScrollView>
-                <HStack p={6} h={20} alignItems="center">
-                  <UserPhoto
-                    source={{
-                      uri: `${api.defaults.baseURL}/images/${product.user?.avatar}`,
-                    }}
-                    alt={product.user?.avatar}
-                    size={16}
-                    mr={4}
-                  />
-                  <Text fontSize="sm" fontFamily="regular" color="gray.1">
-                    {product.user?.name}
-                  </Text>
-                </HStack>
+                  ))
+                ) : (
+                  <HStack alignItems="center">
+                    <Image
+                      width={Dimensions.get("screen").width}
+                      height={300}
+                      source={PlaceholderImage}
+                      alt="imagem do produto"
+                      resizeMode="cover"
+                      style={product.is_active === false && { opacity: 0.5 }}
+                    />
+                  </HStack>
+                )}
+              </ScrollView>
+              <HStack p={6} h={20} alignItems="center">
+                <UserPhoto
+                  source={{
+                    uri: `${api.defaults.baseURL}/images/${product.user?.avatar}`,
+                  }}
+                  type="forms"
+                  alt={product.user?.avatar}
+                  size={8}
+                  mr={4}
+                />
+                <Text fontSize="sm" fontFamily="regular" color="gray.1">
+                  {product.user?.name}
+                </Text>
+              </HStack>
 
-                <VStack px={6}>
-                  <Badge
-                    colorText={product.is_new ? "white" : "gray.1"}
-                    variant="outFilter"
-                    w={20}
-                    mb={2}
-                    state={product.is_new ? "NOVO" : "USADO"}
-                  />
-                  <VStack mb={2}>
+              <VStack px={6}>
+                <Badge
+                  colorText={product.is_new ? "white" : "gray.1"}
+                  variant="outFilter"
+                  w={20}
+                  mb={2}
+                  state={product.is_new ? "NOVO" : "USADO"}
+                />
+                <VStack mb={2}>
+                  <HStack justifyContent="space-between">
                     <Heading fontFamily="heading" fontSize="xl" color="gray.1">
                       {product.name}
                     </Heading>
-                    <Text fontFamily="regular" fontSize="md" color="gray.1">
-                      {product.description}
-                    </Text>
-                  </VStack>
-
-                  <HStack mb={2} alignItems="center">
-                    <Heading
-                      mr={2}
-                      fontFamily="heading"
-                      fontSize="md"
-                      color="gray.1"
-                    >
-                      Aceita troca?
-                    </Heading>
-                    <Text fontFamily="regular" fontSize="md" color="gray.1">
-                      {product.accept_trade ? "Sim" : "Não"}
-                    </Text>
+                    <Values value={`${product.price},00`} type="top" />
                   </HStack>
-                  <VStack>
-                    <Heading
-                      mb={2}
-                      fontFamily="heading"
-                      fontSize="md"
-                      color="gray.1"
-                    >
-                      Meios de pagamento
-                    </Heading>
-
-                    {product.payment_methods?.map((item) => (
-                      <VStack>
-                        <PaymentIcons key={item.key} name={item.name} />
-                      </VStack>
-                    ))}
-                  </VStack>
+                  <Text fontFamily="regular" fontSize="md" color="gray.1">
+                    {product.description}
+                  </Text>
                 </VStack>
-              </ScrollView>
-            </VStack>
-          </ScrollView>
+
+                <HStack mb={2} alignItems="center">
+                  <Heading
+                    mr={2}
+                    fontFamily="heading"
+                    fontSize="md"
+                    color="gray.1"
+                  >
+                    Aceita troca?
+                  </Heading>
+                  <Text fontFamily="regular" fontSize="md" color="gray.1">
+                    {product.accept_trade ? "Sim" : "Não"}
+                  </Text>
+                </HStack>
+                <VStack>
+                  <Heading
+                    mb={2}
+                    fontFamily="heading"
+                    fontSize="md"
+                    color="gray.1"
+                  >
+                    Meios de pagamento
+                  </Heading>
+
+                  {product.payment_methods?.map((item) => (
+                    <VStack key={item.key}>
+                      <PaymentIcons
+                        key={
+                          item.key as
+                            | "cash"
+                            | "deposit"
+                            | "boleto"
+                            | "pix"
+                            | "card"
+                        }
+                        name={item.name}
+                      />
+                    </VStack>
+                  ))}
+                </VStack>
+              </VStack>
+            </ScrollView>
+          </VStack>
           <VStack p={6} justifyContent="space-around" alignItems="center">
             <Button
               mb={2}
@@ -281,7 +298,7 @@ export function MyAdDetails() {
               onPress={handleRemoveAd}
             />
           </VStack>
-        </VStack>
+        </ScrollView>
       )}
     </VStack>
   );

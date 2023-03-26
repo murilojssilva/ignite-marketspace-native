@@ -2,7 +2,6 @@ import { HeaderBack } from "@components/HeaderBack";
 import {
   HStack,
   Heading,
-  Icon,
   Image,
   ScrollView,
   Text,
@@ -10,12 +9,10 @@ import {
   useToast,
 } from "native-base";
 
-import BicicleImage from "@assets/Bicycle.png";
-import defaultUserPhotoImg from "@assets/userPhotoDefault.png";
+import PlaceholderImage from "@assets/placeholderImage.png";
 
 import { UserPhoto } from "@components/UserPhoto";
 import { Badge } from "@components/Badge";
-import { FontAwesome } from "@expo/vector-icons";
 import { Button } from "@components/Form/Button";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { useCallback, useState } from "react";
@@ -25,6 +22,7 @@ import { api } from "@services/api";
 import { Dimensions, Linking } from "react-native";
 import { Loading } from "@components/Loading";
 import { PaymentIcons } from "@components/PaymentIcons";
+import { Values } from "@components/Values";
 
 type RouteParams = {
   productId: string;
@@ -84,7 +82,7 @@ export function Details() {
     }, [productId])
   );
   return (
-    <VStack flex={1}>
+    <VStack bg="gray.6" flex={1}>
       <HeaderBack />
       {isLoading ? (
         <Loading />
@@ -93,14 +91,13 @@ export function Details() {
           <ScrollView>
             <ScrollView
               w="full"
-              flex={1}
               mt={2}
               horizontal
               showsHorizontalScrollIndicator={true}
             >
               {product.product_images ? (
                 product.product_images.map((image) => (
-                  <HStack alignItems="center">
+                  <HStack alignItems="center" key={image.id}>
                     <Image
                       width={Dimensions.get("screen").width}
                       height={300}
@@ -118,7 +115,7 @@ export function Details() {
                   <Image
                     width={Dimensions.get("screen").width}
                     height={300}
-                    source={BicicleImage}
+                    source={PlaceholderImage}
                     alt="Imagem do produto"
                     resizeMode="cover"
                     style={product.is_active === false && { opacity: 0.5 }}
@@ -131,8 +128,9 @@ export function Details() {
                 source={{
                   uri: `${api.defaults.baseURL}/images/${product.user?.avatar}`,
                 }}
+                type="forms"
                 alt={product.user?.name}
-                size={16}
+                size={8}
                 mr={4}
               />
               <Text fontSize="sm" fontFamily="regular" color="gray.1">
@@ -149,9 +147,12 @@ export function Details() {
                 state={product.is_new ? "NOVO" : "USADO"}
               />
               <VStack mb={2}>
-                <Heading fontFamily="heading" fontSize="xl" color="gray.1">
-                  {product.name}
-                </Heading>
+                <HStack justifyContent="space-between">
+                  <Heading fontFamily="heading" fontSize="xl" color="gray.1">
+                    {product.name}
+                  </Heading>
+                  <Values value={`${product.price},00`} type="top" />
+                </HStack>
                 <Text fontFamily="regular" fontSize="md" color="gray.1">
                   {product.description}
                 </Text>
@@ -170,7 +171,7 @@ export function Details() {
                   {product.accept_trade ? "Sim" : "Não"}
                 </Text>
               </HStack>
-              <VStack>
+              <VStack mb={5}>
                 <Heading
                   mb={2}
                   fontFamily="heading"
@@ -181,7 +182,12 @@ export function Details() {
                 </Heading>
 
                 {product.payment_methods?.map((item) => (
-                  <PaymentIcons key={item.key} name={item.name} />
+                  <PaymentIcons
+                    key={
+                      item.key as "cash" | "deposit" | "boleto" | "pix" | "card"
+                    }
+                    name={item.name}
+                  />
                 ))}
               </VStack>
             </VStack>
@@ -192,9 +198,7 @@ export function Details() {
             justifyContent="space-around"
             alignItems="center"
           >
-            <Heading color="blue.normal" fontFamily="heading" fontSize="xl">
-              {`R$${product.price},00`}
-            </Heading>
+            <Values value={`${product.price},00`} type="bottom" />
             <Button
               icon="phone"
               title="Entrar em contato"

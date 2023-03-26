@@ -39,6 +39,7 @@ export function Input({
         alignItems="center"
         justifyContent="center"
         position="relative"
+        mb={4}
       >
         <NativeBaseInput
           bg="gray.7"

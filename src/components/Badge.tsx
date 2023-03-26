@@ -3,7 +3,7 @@ import { Feather } from "@expo/vector-icons";
 
 type BagdeProps = IBoxProps & {
   variant: "inFilter" | "outFilter";
-  state: "NOVO" | "USADO";
+  state: "NOVO" | "USADO" | "";
   icon?: string;
   colorText: "white" | "gray.1";
 };

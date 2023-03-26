@@ -1,35 +1,39 @@
-import { Box, Divider, Flex, HStack, Icon, Text, useTheme } from "native-base";
-import { MagnifyingGlass, Sliders } from "phosphor-react-native";
+import { Box, Divider, Flex, HStack, Icon } from "native-base";
 import { TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { Input } from "@components/Form/Input";
 
 type SearchBarProps = {
   handleFilterPress: (showModal: boolean) => void;
+  search: () => void;
 };
 
-export function SearchBar({ handleFilterPress }: SearchBarProps) {
+export function SearchBar({ handleFilterPress, search }: SearchBarProps) {
   return (
-    <HStack bg="gray.7" alignItems="center" justifyContent="center" mb={6}>
+    <HStack mb={6}>
       <Input
-        bg="gray.7"
         fontFamily="heading"
         fontSize="md"
         placeholder="Buscar anúncio"
-        placeholderTextColor="gray.4"
         paddingRight={24}
       />
 
       <Box alignItems="center" ml={-20}>
-        <Flex direction="row" h="58" p="4">
-          <TouchableOpacity>
+        <HStack p={3.5}>
+          <TouchableOpacity onPress={() => search}>
             <Icon as={Feather} name="search" size={5} color="gray.1" />
           </TouchableOpacity>
-          <Divider bg="gray.4" thickness="2" mx="2" orientation="vertical" />
+          <Divider
+            bg="gray.4"
+            h={5}
+            thickness="2"
+            mx={2}
+            orientation="vertical"
+          />
           <TouchableOpacity onPress={() => handleFilterPress(true)}>
             <Icon as={Feather} name="sliders" size={5} color="gray.1" />
           </TouchableOpacity>
-        </Flex>
+        </HStack>
       </Box>
     </HStack>
   );

@@ -9,7 +9,6 @@ import {
   Radio,
   ScrollView,
   Checkbox as NativeBaseCheckbox,
-  FlatList,
   useToast,
 } from "native-base";
 
@@ -25,14 +24,13 @@ import { AppNavigatorRoutesProps } from "@routes/app.routes";
 
 import { HeaderBack } from "@components/HeaderBack";
 import { Input } from "@components/Form/Input";
-import { useCallback, useState } from "react";
+import { Key, useCallback, useEffect, useState } from "react";
 import { Switch } from "@components/Switch";
 import { Button } from "@components/Form/Button";
 import { ImageFormPreview } from "@components/ImageFormPreview";
 import { Textarea } from "@components/Form/Textarea";
 import { Loading } from "@components/Loading";
 
-import { PaymentMethodDTO } from "@dtos/PaymentMethodDTO";
 import { PAYMENT_METHODS } from "@constants/paymentMethods";
 
 import { ProductDTO } from "@dtos/ProductDTO";
@@ -43,10 +41,10 @@ import { AppError } from "@utils/AppError";
 
 import * as ImagePicker from "expo-image-picker";
 import * as Yup from "yup";
+import { ProductImageDTO } from "@dtos/ProductImagesDTO";
+import { Checkbox } from "@components/Checkbox";
 
-type RouteParams = {
-  productId: string;
-};
+type RouteParams = ProductDTO;
 
 type FormDataProps = {
   name: string;
@@ -66,32 +64,45 @@ const editAdSchema = Yup.object({
 });
 
 export function EditAd() {
-  const [product, setProduct] = useState<ProductDTO>({} as ProductDTO);
-  const [isLoadingProduct, setIsLoadingProduct] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [imagesUri, setImagesUri] = useState<string[]>([] as string[]);
-  const [paymentMethods, setPaymentMethods] = useState<string[]>(
-    [] as string[]
-  );
-  const [is_new, setIsNew] = useState(false);
-  const [accept_trade, setAcceptTrade] = useState(false);
-
   const route = useRoute();
   const toast = useToast();
   const navigation = useNavigation<AppNavigatorRoutesProps>();
 
-  const { productId } = route.params as RouteParams;
+  const {
+    id,
+    is_new,
+    accept_trade,
+    payment_methods,
+    product_images,
+    name,
+    description,
+    price,
+  } = route.params as RouteParams;
+
+  let methods: any[] = [];
+  payment_methods.map(({ key }) => methods.push(key));
+
+  const [productData, setProductData] = useState<ProductDTO>({} as ProductDTO);
+
+  const [isLoadingProduct, setIsLoadingProduct] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [isNew, setIsNew] = useState<boolean>(is_new);
+  const [acceptTrade, setAcceptTrade] = useState<boolean>(accept_trade);
+
+  const [imagesUri, setImagesUri] = useState<(string | ProductImageDTO)[]>(
+    product_images as ProductImageDTO[]
+  );
+  const [paymentMethods, setPaymentMethods] = useState<string[]>(
+    methods as string[]
+  );
 
   async function fetchProduct() {
     try {
       setIsLoadingProduct(true);
-      const response = await api.get(`/products/${productId}`);
-      setProduct(response.data);
-      setImagesUri(product.product_images.map((image) => image.path));
-      setIsNew(product.is_new);
-      setPaymentMethods(product.payment_methods.map(({ key }) => key));
-      setAcceptTrade(product.accept_trade);
-      console.log({ product });
+      const response = await api.get(`/products/${id}`);
+      setProductData(response.data);
+      setPaymentMethods(paymentMethods.filter((method) => method));
     } catch (error) {
       const isAppError = error instanceof AppError;
       const title = isAppError
@@ -113,9 +124,9 @@ export function EditAd() {
   } = useForm<FormDataProps>({
     resolver: yupResolver(editAdSchema),
     defaultValues: {
-      name: product.name,
-      description: product.description,
-      price: product.price,
+      name,
+      description: description,
+      price: price,
     },
   });
 
@@ -160,38 +171,23 @@ export function EditAd() {
   async function handleEditAd({ name, description, price }: FormDataProps) {
     try {
       setIsLoading(true);
-      console.log("Passou 1");
-      console.log({
-        name,
-        description,
-        price,
-        is_new,
-        accept_trade,
-        payment_methods: paymentMethods,
-        imagesUri,
-      });
-      console.log("Passou 2");
 
-      await api.put(`/products/${productId}`, {
+      await api.put(`/products/${id}`, {
         name,
         description,
         price,
-        is_new,
-        accept_trade,
+        is_new: isNew,
+        accept_trade: acceptTrade,
         payment_methods: paymentMethods,
         imagesUri,
       });
 
-      console.log("Passou 3");
-
-      await uploadImages(product.id, imagesUri);
+      await uploadImages(productData.id, imagesUri as string[]);
       toast.show({
-        title: "Produto cadastrado com sucesso.",
+        title: "Produto editado com sucesso.",
         placement: "top",
         bgColor: "green.500",
       });
-
-      console.log("Passou 4");
 
       navigation.navigate("home");
     } catch (error) {
@@ -218,7 +214,7 @@ export function EditAd() {
         const imageExtension = item.split(".").pop();
 
         const imageFile = {
-          name: `${product.user.name}.${imageExtension}`,
+          name: `${productData.user.name}.${imageExtension}`,
           uri: item,
           type: `image/${imageExtension}`,
         } as any;
@@ -247,7 +243,8 @@ export function EditAd() {
   useFocusEffect(
     useCallback(() => {
       fetchProduct();
-    }, [productId])
+      fetchProduct();
+    }, [id])
   );
 
   return (
@@ -276,14 +273,16 @@ export function EditAd() {
               showsHorizontalScrollIndicator={false}
             >
               <HStack mt={2} alignItems="center">
-                {imagesUri.length > 0 &&
-                  imagesUri.map((imageUri) => (
-                    <Box key={imageUri}>
+                {imagesUri &&
+                  imagesUri.map((imageUri: ProductImageDTO | string) => (
+                    <Box key={imageUri.id}>
                       <ImageFormPreview
-                        uri={`${api.defaults.baseURL}/images/${imageUri}`}
+                        uri={`${api.defaults.baseURL}/images/${imageUri.path}`}
                       />
 
-                      <Pressable onPress={() => removeImage(imageUri)}>
+                      <Pressable
+                        onPress={() => removeImage(imageUri as string)}
+                      >
                         <Icon as={Feather} name="x" size={2} color="white" />
                       </Pressable>
                     </Box>
@@ -292,8 +291,8 @@ export function EditAd() {
                   <Box
                     mt={2}
                     bg="gray.5"
-                    h={100}
-                    w={100}
+                    h={BOX_SIZE}
+                    w={BOX_SIZE}
                     alignItems="center"
                     justifyContent="center"
                     borderRadius="sm"
@@ -392,23 +391,18 @@ export function EditAd() {
             <Heading my={4} fontFamily="heading" fontSize="sm" color="gray.2">
               Meios de pagamento aceitos
             </Heading>
+
             <NativeBaseCheckbox.Group
               onChange={setPaymentMethods}
-              value={paymentMethods}
+              value={paymentMethods as any[]}
             >
               {PAYMENT_METHODS.map((item) => (
-                <NativeBaseCheckbox
+                <Checkbox
+                  key={item.key}
+                  item={item}
                   value={item.key}
-                  mr={2}
-                  accessibilityLabel={item.name}
-                  _checked={{
-                    bg: "blue.light",
-                  }}
-                >
-                  <Text fontSize="lg" color="gray.2" fontFamily="regular">
-                    {item.name}
-                  </Text>
-                </NativeBaseCheckbox>
+                  text={item.name}
+                />
               ))}
             </NativeBaseCheckbox.Group>
           </VStack>

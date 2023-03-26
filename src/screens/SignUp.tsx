@@ -52,7 +52,7 @@ const signUpSchema = Yup.object({
 export function SignUp() {
   const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [userPhoto, setUserPhoto] = useState({} as UserPhotoDTO);
+  const [userPhoto, setUserPhoto] = useState<UserPhotoDTO>({} as UserPhotoDTO);
   const {
     control,
     handleSubmit,
@@ -172,20 +172,17 @@ export function SignUp() {
         </Center>
 
         <Pressable onPress={handleUserPhotoSelect} alignItems="center" my={10}>
-          <Center
-            rounded="full"
-            borderWidth={3}
-            borderColor="blue.light"
-            bg="gray.5"
-            w={24}
-            h={24}
-          >
-            {userPhoto ? (
-              <UserPhoto size={44} />
-            ) : (
-              <Icon as={Feather} name="user" color="gray.4" size={44} />
-            )}
-          </Center>
+          {userPhoto ? (
+            <UserPhoto
+              source={userPhoto.photo}
+              alt="Imagem do usuário"
+              size={32}
+              type="me"
+            />
+          ) : (
+            <Icon as={Feather} name="user" color="gray.4" size={16} />
+          )}
+
           <Center
             rounded="full"
             bg="blue.light"
@@ -203,7 +200,6 @@ export function SignUp() {
             name="name"
             render={({ field: { onChange, value } }) => (
               <Input
-                mb={2}
                 onChangeText={onChange}
                 value={value}
                 placeholder="Nome"
@@ -216,7 +212,6 @@ export function SignUp() {
             name="email"
             render={({ field: { onChange, value } }) => (
               <Input
-                mb={2}
                 onChangeText={onChange}
                 value={value}
                 placeholder="E-mail"
@@ -231,7 +226,6 @@ export function SignUp() {
             name="tel"
             render={({ field: { onChange, value } }) => (
               <Input
-                mb={2}
                 onChangeText={onChange}
                 value={value}
                 placeholder="Telefone"
@@ -247,7 +241,6 @@ export function SignUp() {
             name="password"
             render={({ field: { onChange, value } }) => (
               <Input
-                mb={2}
                 onChangeText={onChange}
                 value={value}
                 isPassword
@@ -263,7 +256,6 @@ export function SignUp() {
             name="password_confirm"
             render={({ field: { onChange, value } }) => (
               <Input
-                mb={2}
                 onChangeText={onChange}
                 value={value}
                 isPassword
@@ -277,6 +269,7 @@ export function SignUp() {
           />
 
           <Button
+            mt={5}
             title="Criar"
             variant="outline"
             onPress={handleSubmit(handleSignUp)}

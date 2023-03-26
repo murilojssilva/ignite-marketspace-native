@@ -23,6 +23,7 @@ export function HomeHeader() {
             ? { uri: `${api.defaults.baseURL}/images/${user.avatar}` }
             : avatarImg
         }
+        type="me"
         alt="Imagem do usuário"
         size={16}
         mr={4}

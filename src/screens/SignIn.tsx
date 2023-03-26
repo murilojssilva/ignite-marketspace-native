@@ -94,7 +94,6 @@ export function SignIn() {
             name="email"
             render={({ field: { onChange, value } }) => (
               <Input
-                mb={2}
                 onChangeText={onChange}
                 value={value}
                 placeholder="E-mail"
@@ -109,7 +108,6 @@ export function SignIn() {
             name="password"
             render={({ field: { onChange, value } }) => (
               <Input
-                mb={2}
                 onChangeText={onChange}
                 isPassword
                 value={value}

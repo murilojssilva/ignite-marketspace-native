@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { TouchableOpacity } from "react-native";
 
 import { Feather } from "@expo/vector-icons";
@@ -36,15 +36,25 @@ import { ProductDTO } from "@dtos/ProductDTO";
 export function Home() {
   const { isOpen, onOpen, onClose } = useDisclose();
   const { navigate } = useNavigation<AppNavigatorRoutesProps>();
-  const [state, setState] = useState("NOVO");
+  const [state, setState] = useState<"NOVO" | "USADO" | "">("");
+
+  const [acceptTrade, setAcceptTrade] = useState(false);
 
   const toast = useToast();
 
-  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [products, setProducts] = useState<ProductDTO[]>([] as ProductDTO[]);
+  const [filterName, setFilterName] = useState("");
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [isNew, setIsNew] = useState(false);
 
   function handleOpenCard(productId: string) {
     navigate("details", { productId });
+  }
+
+  function handleCondition(item: "NOVO" | "USADO" | "") {
+    setState(item);
+    setIsNew(item === "NOVO" ? true : false);
   }
 
   async function fetchProducts() {
@@ -67,10 +77,79 @@ export function Home() {
     }
   }
 
+  async function handleFilterProducts() {
+    try {
+      setIsLoadingProducts(true);
+      const params = `is_new=${isNew}&accept_trade=${acceptTrade}&payment_methods=${JSON.stringify(
+        paymentMethods
+      )}`;
+      const response = await api.get(`/products?${params}`);
+      setProducts(response.data);
+      onClose();
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível carregar os filtros do produto";
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.500",
+      });
+    } finally {
+      setIsLoadingProducts(false);
+    }
+  }
+
+  async function handleFilterByName() {
+    try {
+      const response = await api.get(`/products?query=${filterName}`);
+      setProducts(response.data);
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível carregar os filtros do produto";
+
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.500",
+      });
+    }
+  }
+
+  function resetCondition() {
+    setState("");
+    setPaymentMethods([]);
+  }
+
+  async function handleResetFilters() {
+    try {
+      resetCondition();
+      setFilterName("");
+      setAcceptTrade(false);
+      setPaymentMethods([]);
+
+      await fetchProducts();
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível carregar os resetar os filtros do produto";
+
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.500",
+      });
+    }
+  }
+
   useFocusEffect(
     useCallback(() => {
       fetchProducts();
-    }, [products])
+    }, [])
   );
 
   return (
@@ -84,10 +163,10 @@ export function Home() {
         <Text fontSize="sm" fontFamily="regular" color="gray.1">
           Compre produtos variados
         </Text>
-        <SearchBar handleFilterPress={onOpen} />
+        <SearchBar search={handleFilterByName} handleFilterPress={onOpen} />
       </VStack>
 
-      {!isLoadingProducts ? (
+      {isLoadingProducts ? (
         <Loading />
       ) : (
         <FlatList
@@ -100,6 +179,7 @@ export function Home() {
               key={item.id}
             />
           )}
+          contentContainerStyle={[products.length === 0 && { flex: 1 }]}
           ListEmptyComponent={<EmptyProductList />}
           numColumns={2}
           _contentContainerStyle={{ alignItems: "center", pb: 20 }}
@@ -130,11 +210,7 @@ export function Home() {
             </Heading>
             <HStack py={3}>
               {state === "NOVO" ? (
-                <TouchableOpacity
-                  onPress={() =>
-                    setProducts(products.filter((product) => product.is_new))
-                  }
-                >
+                <TouchableOpacity onPress={() => handleCondition}>
                   <Badge
                     colorText="white"
                     w={20}
@@ -157,11 +233,7 @@ export function Home() {
                 </TouchableOpacity>
               )}
               {state === "USADO" ? (
-                <TouchableOpacity
-                  onPress={() =>
-                    setProducts(products.filter((product) => !product.is_new))
-                  }
-                >
+                <TouchableOpacity onPress={() => handleCondition}>
                   <Badge
                     colorText="white"
                     w={20}
@@ -188,7 +260,11 @@ export function Home() {
             <Heading mb={2} color="gray.1" fontSize="sm" fontFamily="heading">
               Aceita troca?
             </Heading>
-            <Switch size="md" />
+            <Switch
+              size="md"
+              onToggle={(value) => setAcceptTrade(value)}
+              value={acceptTrade}
+            />
           </VStack>
           <Heading pt={3} color="gray.1" fontSize="sm" fontFamily="heading">
             Meios de pagamento aceitos
@@ -215,12 +291,18 @@ export function Home() {
             )}
           />
           <HStack justifyContent="space-between" mx={8}>
-            <Button w={150} mr={2} variant="subtle" title="Resetar filtros" />
+            <Button
+              w={150}
+              mr={2}
+              variant="subtle"
+              title="Resetar filtros"
+              onPress={handleResetFilters}
+            />
             <Button
               variant="outline"
               w={150}
               title="Aplicar filtros"
-              onPress={onClose}
+              onPress={handleFilterProducts}
             />
           </HStack>
         </Actionsheet.Content>
