@@ -36,16 +36,13 @@ import { AppError } from "@utils/AppError";
 type FormDataProps = {
   name: string;
   description: string;
-  price: number;
+  price: string;
 };
 
 const createAdSchema = Yup.object({
   name: Yup.string().required("Informe o nome."),
   description: Yup.string().required("Informe a descrição."),
-  price: Yup.number()
-    .typeError("Informe um valor numérico")
-    .positive("O valor não pode ser negativo")
-    .required("O valor é obrigatório"),
+  price: Yup.string(),
 });
 
 export function CreateAd() {

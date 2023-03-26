@@ -49,7 +49,7 @@ type RouteParams = ProductDTO;
 type FormDataProps = {
   name: string;
   description: string;
-  price: number;
+  price: string;
 };
 
 const BOX_SIZE = 100;
@@ -57,10 +57,7 @@ const BOX_SIZE = 100;
 const editAdSchema = Yup.object({
   name: Yup.string().required("Informe o nome."),
   description: Yup.string().required("Informe a descrição."),
-  price: Yup.number()
-    .typeError("Informe um valor numérico")
-    .positive("O valor não pode ser negativo")
-    .required("O valor é obrigatório"),
+  price: Yup.string(),
 });
 
 export function EditAd() {
@@ -274,7 +271,7 @@ export function EditAd() {
             >
               <HStack alignItems="center" justifyContent="center">
                 {imagesUri &&
-                  imagesUri.map((imageUri: ProductImageDTO) => (
+                  imagesUri.map((imageUri: any) => (
                     <Box
                       key={imageUri.id}
                       alignItems="flex-end"
